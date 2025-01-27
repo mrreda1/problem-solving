@@ -55,7 +55,7 @@ If there's a file with same name the command will simply open it, it won't be re
 
 Open the newly generated `ProblemName.cpp` file. You'll need to customize the following fields:
 
-```bash
+```cpp
 const bool T = false;     // Set to true if there are multiple test cases, false otherwise.
 const string iofile = ""; // Input/Output file name (if applicable).
 
