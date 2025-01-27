@@ -1,5 +1,5 @@
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 
 #define all(v) v.begin(), v.end()
 #define rall(v) v.rbegin(), v.rend()
@@ -21,7 +21,8 @@ void solve() {
         cin >> abc[i];
     }
     sort(abc, abc + 7);
-    cout << abc[0] << ' ' << abc[1] << ' ' << abc[abc[0] + abc[1] == abc[2]?3:2];
+    cout << abc[0] << ' ' << abc[1] << ' '
+         << abc[abc[0] + abc[1] == abc[2] ? 3 : 2];
 }
 
 void tsolve();

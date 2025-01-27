@@ -18,14 +18,9 @@ const ll MOD = 1e9 + 7;
 void solve() {
     int x, y, n;
     cin >> x >> y;
-    if (x == y || y - x == 1) {
-        cout << y - x;
-        return;
-    }
     n = ceil(log2(abs(x - y)));
-    if ((y > x && n & 1) || (y < x && !(n & 1))) n++;
-    cout << (1 << n) + (1 << (n + 1)) - 2 -
-                abs(x + (-2 * (n % 2) + 1) * (1 << n) - y);
+    n += ((y > x) == (n & 1));
+    cout << 3 * (1 << n) - abs(x - y + (-2 * (n & 1) + 1) * (1 << n)) - 2;
 }
 
 void tsolve();

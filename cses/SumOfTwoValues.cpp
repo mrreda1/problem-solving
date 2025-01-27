@@ -35,7 +35,7 @@ void solve() {
             }
         }
     }
-    cout << "IMPOSSIBLE";
+    cout << -1;
 }
 
 int main() {

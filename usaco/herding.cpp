@@ -4,29 +4,32 @@
 #define rall(v) v.rbegin(), v.rend()
 #define make_unique(x) sort(all(x)), x.erase(unique(all(x)), x.end())
 
-template <typename T> T nxt();
-
 using namespace std;
-using llu = unsigned long long;
-using ll = long long;
+template <typename T> T nxt();
+template <typename T> class is_iterable {
+  public:
+    template <typename U>
+    static auto test(U *u) -> decltype(u->begin(), u->end(), true_type{});
+    template <typename> static false_type test(...);
+    static constexpr bool value = decltype(test<T>(nullptr))::value;
+};
+template <typename T>
+typename enable_if<!is_iterable<T>::value>::type nxtseq(T &x);
+template <typename T>
+typename enable_if<is_iterable<T>::value>::type nxtseq(T &x);
+
+using ld = long double;
+using llu = uint64_t;
+using ll = int64_t;
 
 const bool T = 0;
 const string iofile = "herding";
 
-
 void solve() {
-    int mx, mn;
-    array<int, 3> cows;
-    generate(all(cows), nxt<int>);
-    sort(all(cows));
-    mx = max(cows[1] - cows[0], cows[2] - cows[1]) - 1;
-    mn = min(cows[1] - cows[0], cows[2] - cows[1]) - 1;
-    if (mx < 2) {
-        cout << mx << endl;
-        cout << mx;
-    } else {
-        cout << (mn == 1 ? 1 : 2) << endl;
-        cout << mx;
+    int n = nxt<int>();
+    vector<int> cow(n);
+    nxtseq(cow);
+    for (int i = 0; i < n; i++) {
     }
 }
 
@@ -42,19 +45,23 @@ int main() {
         freopen((iofile + ".out").c_str(), "w", stdout);
     }
 #endif
-    if (T) {
-        int t;
-        cin >> t;
-        while (t--) {
-            solve();
-            cout << '\n';
-        }
-    } else {
+    int t = T ? nxt<int>() : 1;
+    do {
         solve();
-    }
+    } while (--t && cout << '\n');
 }
 template <typename T> T nxt() {
     T x;
     cin >> x;
     return x;
+}
+template <typename T>
+typename enable_if<!is_iterable<T>::value>::type nxtseq(T &x) {
+    cin >> x;
+}
+template <typename T>
+typename enable_if<is_iterable<T>::value>::type nxtseq(T &x) {
+    for (auto &v : x) {
+        nxtseq(v);
+    }
 }

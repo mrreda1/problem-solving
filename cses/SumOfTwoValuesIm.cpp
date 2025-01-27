@@ -25,7 +25,7 @@ void solve() {
         }
         v[x] = i;
     }
-    cout << "IMPOSSIBLE";
+    cout << -1;
 }
 
 int main() {
