@@ -10,7 +10,11 @@ This repository provides a C++ problem-solving template that streamlines the pro
 - **Efficient Input Handling**: Custom functions like `nxt<int>()` and `nxtseq()` for easy input handling.
 - **Test Case Management**: Easily add test cases with `addcase`, and run the solution with `try`.
 - **Fast Compilation & Execution**: Use custom commands to compile and execute solutions.
-  
+
+## workflow
+
+https://github.com/user-attachments/assets/cee655d4-9910-47b8-8dbe-0fd1f2461b4d
+
 ## Setup Instructions
 
 ### 1. Clone the Repository
