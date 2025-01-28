@@ -19,6 +19,7 @@ nxtseq(T &x);
 template <typename T>
 typename enable_if<!is_same<T, string>::value && is_iterable<T>::value>::type
 nxtseq(T &x);
+template <typename T1, typename T2> void nxtseq(pair<T1, T2> &p);
 
 using ld = long double;
 using llu = uint64_t;
@@ -64,4 +65,7 @@ nxtseq(T &x) {
     for (auto &v : x) {
         nxtseq(v);
     }
+}
+template <typename T1, typename T2> void nxtseq(pair<T1, T2> &p) {
+    cin >> p.first >> p.second;
 }
