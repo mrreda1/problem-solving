@@ -11,15 +11,15 @@ template <typename T> class is_iterable {
     template <typename U>
     static auto test(U *u) -> decltype(u->begin(), u->end(), true_type{});
     template <typename> static false_type test(...);
-    static constexpr bool value = decltype(test<T>(nullptr))::value;
+    static constexpr bool value =
+        !is_same<T, string>::value && decltype(test<T>(nullptr))::value;
 };
 template <typename T>
-typename enable_if<!(!is_same<T, string>::value && is_iterable<T>::value)>::type
-nxtseq(T &x);
+typename enable_if<is_iterable<T>::value>::type nxtseq(T &x);
 template <typename T>
-typename enable_if<!is_same<T, string>::value && is_iterable<T>::value>::type
-nxtseq(T &x);
+typename enable_if<!is_iterable<T>::value>::type nxtseq(T &x);
 template <typename T1, typename T2> void nxtseq(pair<T1, T2> &p);
+template <typename Itr> void nxtseq(Itr begin, Itr end);
 
 using ld = long double;
 using llu = uint64_t;
@@ -30,7 +30,6 @@ const string iofile = ""; // I/O file?
 
 void solve() {
 }
-
 
 int main() { // Don't touch it, compile with "_DEBUG" flag
     ios_base::sync_with_stdio(false);
@@ -55,17 +54,21 @@ template <typename T> T nxt() {
     return x;
 }
 template <typename T>
-typename enable_if<!(!is_same<T, string>::value && is_iterable<T>::value)>::type
-nxtseq(T &x) {
+typename enable_if<!is_iterable<T>::value>::type nxtseq(T &x) {
     cin >> x;
 }
 template <typename T>
-typename enable_if<!is_same<T, string>::value && is_iterable<T>::value>::type
-nxtseq(T &x) {
+typename enable_if<is_iterable<T>::value>::type nxtseq(T &x) {
     for (auto &v : x) {
         nxtseq(v);
     }
 }
+template <typename Itr> void nxtseq(Itr begin, Itr end) {
+    for (Itr itr = begin; itr < end; ++itr) {
+        nxtseq(*itr);
+    }
+}
 template <typename T1, typename T2> void nxtseq(pair<T1, T2> &p) {
-    cin >> p.first >> p.second;
+    nxtseq(p.first);
+    nxtseq(p.second);
 }
