@@ -19,7 +19,6 @@ nxtseq(T &x);
 template <typename T>
 typename enable_if<!is_same<T, string>::value && is_iterable<T>::value>::type
 nxtseq(T &x);
-template <typename T1, typename T2> void nxtseq(pair<T1, T2> &p);
 
 using ld = long double;
 using llu = uint64_t;
@@ -29,26 +28,31 @@ const bool T = false;     // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-    ll n = nxt<int>(), k = nxt<ll>(), l = 0, r = n - 1;
-    vector<ll> v(n), res(2);
-    nxtseq(v), sort(all(v));
-    res = {v[0], v[n - 1]};
-    while (k && l < r) {
-        ll diff;
-        if (l < n - r) {
-            diff = min((v[l + 1] - v[l]) * (l + 1), k);
-            v[l] += diff / (l + 1);
-            res[0] = v[l];
-        } else {
-            diff = min((v[r] - v[r - 1]) * (n - r), k);
-            v[r] -= diff / (n - r);
-            res[1] = v[r];
-        }
-        k -= diff;
-        while (l < n - 1 && v[l + 1] == v[l]) l++;
-        while (r > 0 && v[r] == v[r - 1]) r--;
+    array<ll, 3> devices;
+    array<priority_queue<ll, vector<ll>, greater<ll>>, 2> mouses;
+    nxtseq(devices);
+    ll m = nxt<int>(), cnt = 0, cost = 0;
+    while (m--) {
+        ll price = nxt<int>();
+        mouses[nxt<string>() == "PS/2"].push(price);
     }
-    cout << res[1] - res[0];
+    for (int type = 0; type < 2; type++) {
+        for (int i = 0; i < devices[type] && !mouses[type].empty(); i++) {
+            cnt++;
+            cost += mouses[type].top();
+            mouses[type].pop();
+        }
+    }
+    while (!mouses[1].empty()) {
+        mouses[0].push(mouses[1].top());
+        mouses[1].pop();
+    }
+    for (int i = 0; i < devices[2] && !mouses[0].empty(); i++) {
+        cnt++;
+        cost += mouses[0].top();
+        mouses[0].pop();
+    }
+    cout << cnt << ' ' << cost;
 }
 
 
@@ -85,7 +89,4 @@ nxtseq(T &x) {
     for (auto &v : x) {
         nxtseq(v);
     }
-}
-template <typename T1, typename T2> void nxtseq(pair<T1, T2> &p) {
-    cin >> p.first >> p.second;
 }

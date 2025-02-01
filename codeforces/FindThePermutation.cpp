@@ -25,30 +25,21 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = false;     // Multiple test cases?
+const bool T = true;     // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-    ll n = nxt<int>(), k = nxt<ll>(), l = 0, r = n - 1;
-    vector<ll> v(n), res(2);
-    nxtseq(v), sort(all(v));
-    res = {v[0], v[n - 1]};
-    while (k && l < r) {
-        ll diff;
-        if (l < n - r) {
-            diff = min((v[l + 1] - v[l]) * (l + 1), k);
-            v[l] += diff / (l + 1);
-            res[0] = v[l];
-        } else {
-            diff = min((v[r] - v[r - 1]) * (n - r), k);
-            v[r] -= diff / (n - r);
-            res[1] = v[r];
-        }
-        k -= diff;
-        while (l < n - 1 && v[l + 1] == v[l]) l++;
-        while (r > 0 && v[r] == v[r - 1]) r--;
+    int n = nxt<int>();
+    vector<int> perm(n);
+    vector<string> edges(n);
+    nxtseq(edges);
+    iota(all(perm), 0);
+    sort(all(perm), [&edges](int x, int y) {
+        return (edges[x][y] == '0') ^ (x < y);
+    });
+    for (int x : perm) {
+        cout << x + 1 << ' ';
     }
-    cout << res[1] - res[0];
 }
 
 

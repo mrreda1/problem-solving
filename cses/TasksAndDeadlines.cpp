@@ -19,26 +19,28 @@ nxtseq(T &x);
 template <typename T>
 typename enable_if<!is_same<T, string>::value && is_iterable<T>::value>::type
 nxtseq(T &x);
+template <typename T1, typename T2> void nxtseq(pair<T1, T2> &p);
 
 using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;
-const string iofile = "";
+const bool T = false;     // Multiple test cases?
+const string iofile = ""; // I/O file?
 
 void solve() {
     ll n = nxt<int>(), score = 0;
-    vector<array<int, 2>> p(n);
+    vector<pair<int, int>> p(n);
     nxtseq(p), sort(all(p));
     for (ll i = 0, t = 0; i < n; i++) {
-        t += p[i][0];
-        score += p[i][1] - t;
+        t += p[i].first;
+        score += p[i].second - t;
     }
     cout << score;
 }
 
-int main() {
+
+int main() { // Don't touch it, compile with "_DEBUG" flag
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG
@@ -71,4 +73,7 @@ nxtseq(T &x) {
     for (auto &v : x) {
         nxtseq(v);
     }
+}
+template <typename T1, typename T2> void nxtseq(pair<T1, T2> &p) {
+    cin >> p.first >> p.second;
 }

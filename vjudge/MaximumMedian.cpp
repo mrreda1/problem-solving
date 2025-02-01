@@ -11,15 +11,15 @@ template <typename T> class is_iterable {
     template <typename U>
     static auto test(U *u) -> decltype(u->begin(), u->end(), true_type{});
     template <typename> static false_type test(...);
-    static constexpr bool value = decltype(test<T>(nullptr))::value;
+    static constexpr bool value =
+        !is_same<T, string>::value && decltype(test<T>(nullptr))::value;
 };
 template <typename T>
-typename enable_if<!(!is_same<T, string>::value && is_iterable<T>::value)>::type
-nxtseq(T &x);
+typename enable_if<is_iterable<T>::value>::type nxtseq(T &x);
 template <typename T>
-typename enable_if<!is_same<T, string>::value && is_iterable<T>::value>::type
-nxtseq(T &x);
+typename enable_if<!is_iterable<T>::value>::type nxtseq(T &x);
 template <typename T1, typename T2> void nxtseq(pair<T1, T2> &p);
+template <typename Itr> void nxtseq(Itr begin, Itr end);
 
 using ld = long double;
 using llu = uint64_t;
@@ -29,28 +29,25 @@ const bool T = false;     // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-    ll n = nxt<int>(), k = nxt<ll>(), l = 0, r = n - 1;
-    vector<ll> v(n), res(2);
-    nxtseq(v), sort(all(v));
-    res = {v[0], v[n - 1]};
-    while (k && l < r) {
-        ll diff;
-        if (l < n - r) {
-            diff = min((v[l + 1] - v[l]) * (l + 1), k);
-            v[l] += diff / (l + 1);
-            res[0] = v[l];
-        } else {
-            diff = min((v[r] - v[r - 1]) * (n - r), k);
-            v[r] -= diff / (n - r);
-            res[1] = v[r];
+    ll n = nxt<ll>(), k = nxt<ll>(), l = 1, r = 1e12;
+    vector<ll> a(n);
+    nxtseq(a), sort(all(a));
+    while (l < r) {
+        ll mid = ceil((l + r) / 2.0), tk = k;
+        vector<ll> tmp(all(a));
+        for (ll i = lower_bound(all(tmp), mid) - tmp.begin() - 1; i >= 0; i--) {
+            if (tk < mid - tmp[i]) break;
+            tk -= mid - tmp[i];
+            tmp[i] = mid;
         }
-        k -= diff;
-        while (l < n - 1 && v[l + 1] == v[l]) l++;
-        while (r > 0 && v[r] == v[r - 1]) r--;
+        if (tmp[n / 2] >= mid) {
+            l = mid;
+        } else {
+            r = mid - 1;
+        }
     }
-    cout << res[1] - res[0];
+    cout << r;
 }
-
 
 int main() { // Don't touch it, compile with "_DEBUG" flag
     ios_base::sync_with_stdio(false);
@@ -75,17 +72,21 @@ template <typename T> T nxt() {
     return x;
 }
 template <typename T>
-typename enable_if<!(!is_same<T, string>::value && is_iterable<T>::value)>::type
-nxtseq(T &x) {
+typename enable_if<!is_iterable<T>::value>::type nxtseq(T &x) {
     cin >> x;
 }
 template <typename T>
-typename enable_if<!is_same<T, string>::value && is_iterable<T>::value>::type
-nxtseq(T &x) {
+typename enable_if<is_iterable<T>::value>::type nxtseq(T &x) {
     for (auto &v : x) {
         nxtseq(v);
     }
 }
+template <typename Itr> void nxtseq(Itr begin, Itr end) {
+    for (Itr itr = begin; itr < end; ++itr) {
+        nxtseq(*itr);
+    }
+}
 template <typename T1, typename T2> void nxtseq(pair<T1, T2> &p) {
-    cin >> p.first >> p.second;
+    nxtseq(p.first);
+    nxtseq(p.second);
 }
