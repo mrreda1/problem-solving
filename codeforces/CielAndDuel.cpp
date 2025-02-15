@@ -29,22 +29,49 @@ const bool T = false;     // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-    ll n = nxt<int>(), t = nxt<int>(), l = 1, r = 1e18;
-    vector<ll> machines(n);
-    nxtseq(machines);
-    while (l < r) {
-        ll p = 0, mid = l + (r - l) / 2;
-        for (ll m : machines) {
-            p += mid / m;
-            if (p > t) break;
-        }
-        if (p < t) {
-            l = mid + 1;
-        } else {
-            r = mid;
-        }
+    int n = nxt<int>(), m = nxt<int>(), res = 0;
+    array<vector<int>, 2> jiro;
+    vector<int> fox(m);
+    while (n--) {
+        jiro[nxt<string>() == "DEF"].push_back(nxt<int>());
     }
-    cout << r;
+    nxtseq(fox), sort(all(fox)), sort(all(jiro[0]));
+    while (n < min(m, int(jiro[0].size()))) {
+        int sum = 0;
+        for (int j = n++, i = m - 1; j >= 0; j--, i--) {
+            if (fox[i] < jiro[0][j]) {
+                cout << res;
+                return;
+            }
+            sum += fox[i] - jiro[0][j];
+        }
+        res = max(res, sum);
+    }
+    multiset<int> ciel(all(fox));
+    if (fox.size() > jiro[0].size() + jiro[1].size()) {
+        for (int card : jiro[1]) {
+            multiset<int>::iterator itr = ciel.upper_bound(card);
+            if (itr == ciel.end()) {
+                cout << res;
+                return;
+            }
+            ciel.erase(itr);
+        }
+        int sum = 0;
+        for (int i = jiro[0].size() - 1; i >= 0; i--) {
+            if (*ciel.rbegin() < jiro[0][i]) {
+                cout << res;
+                return;
+            }
+            sum += *ciel.rbegin() - jiro[0][i];
+            ciel.erase(prev(ciel.end()));
+        }
+        for (int x : ciel) {
+            sum += x;
+        }
+        res = max(res, sum);
+    }
+    cout << res;
 }
 
 int main() { // Don't touch it, compile with "_DEBUG" flag

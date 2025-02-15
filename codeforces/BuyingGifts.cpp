@@ -25,26 +25,38 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = false;     // Multiple test cases?
+const bool T = true;      // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-    ll n = nxt<int>(), t = nxt<int>(), l = 1, r = 1e18;
-    vector<ll> machines(n);
-    nxtseq(machines);
-    while (l < r) {
-        ll p = 0, mid = l + (r - l) / 2;
-        for (ll m : machines) {
-            p += mid / m;
-            if (p > t) break;
-        }
-        if (p < t) {
-            l = mid + 1;
-        } else {
-            r = mid;
-        }
+    int n = nxt<int>(), res = INT_MAX;
+    vector<array<int, 2>> a(n);
+    multiset<int> b, opt;
+    for (int i = 0; i < n; i++) {
+        a[i] = {nxt<int>(), nxt<int>()};
+        b.insert(a[i][1]);
     }
-    cout << r;
+    sort(all(a));
+    for (int i = 0; i < n; i++) {
+        b.erase(b.find(a[i][1]));
+        if (!b.empty()) {
+            res = min(res, abs(*b.rbegin() - a[i][0]));
+        }
+        if (!opt.empty()) {
+            auto itr = opt.lower_bound(a[i][0]);
+            if (itr == opt.end()) {
+                itr = prev(itr);
+            }
+            if (b.empty() || *itr > *b.rbegin()) {
+                res = min(res, abs(a[i][0] - *itr));
+            }
+            if (itr != opt.begin() && (b.empty() || *prev(itr) > *b.rbegin())) {
+                res = min(res, abs(a[i][0] - *prev(itr)));
+            }
+        }
+        opt.insert(a[i][1]);
+    }
+    cout << res;
 }
 
 int main() { // Don't touch it, compile with "_DEBUG" flag

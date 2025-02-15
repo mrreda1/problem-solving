@@ -29,22 +29,28 @@ const bool T = false;     // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-    ll n = nxt<int>(), t = nxt<int>(), l = 1, r = 1e18;
-    vector<ll> machines(n);
-    nxtseq(machines);
-    while (l < r) {
-        ll p = 0, mid = l + (r - l) / 2;
-        for (ll m : machines) {
-            p += mid / m;
-            if (p > t) break;
-        }
-        if (p < t) {
-            l = mid + 1;
-        } else {
-            r = mid;
-        }
+    ll n = nxt<ll>(), m = nxt<ll>(), q = nxt<ll>(), v = 0;
+    vector<ll> a(n), b(m), fj(m - n + 1, 0);
+    nxtseq(a), nxtseq(b);
+    for (int i = 0; i < n; i++) {
+        fj[0] += b[i] * (i & 1 ? 1 : -1);
+        v += a[i] * (i & 1 ? -1 : 1);
     }
-    cout << r;
+    for (int i = 1, sign = n & 1 ? -1 : 1; i < m - n + 1; i++) {
+        fj[i] = -(fj[i - 1] + b[i - 1]) + b[i - 1 + n] * sign;
+    }
+    sort(all(fj));
+    function<ll(ll)> getnearest = [&fj](ll v) {
+        vector<ll>::iterator itr = lower_bound(all(fj), -v);
+        itr -= (itr == fj.end());
+        return min(abs(*itr + v), abs(*(itr - (itr != fj.begin())) + v));
+    };
+    cout << getnearest(v) << '\n';
+    while (q--) {
+        ll l = nxt<ll>(), r = nxt<ll>(), x = nxt<ll>();
+        v += ((r - l + 1) & 1) * (l & 1 ? 1 : -1) * x;
+        cout << getnearest(v) << '\n';
+    }
 }
 
 int main() { // Don't touch it, compile with "_DEBUG" flag

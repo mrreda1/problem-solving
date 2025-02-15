@@ -26,25 +26,26 @@ using llu = uint64_t;
 using ll = int64_t;
 
 const bool T = false;     // Multiple test cases?
-const string iofile = ""; // I/O file?
+const string iofile = "helpcross"; // I/O file?
 
 void solve() {
-    ll n = nxt<int>(), t = nxt<int>(), l = 1, r = 1e18;
-    vector<ll> machines(n);
-    nxtseq(machines);
-    while (l < r) {
-        ll p = 0, mid = l + (r - l) / 2;
-        for (ll m : machines) {
-            p += mid / m;
-            if (p > t) break;
-        }
-        if (p < t) {
-            l = mid + 1;
-        } else {
-            r = mid;
+    int c = nxt<int>(), n = nxt<int>();
+    multiset<int> chickens;
+    vector<array<int, 2>> cows(n);
+    for (int i = 0; i < c; i++) {
+        chickens.insert(nxt<int>());
+    }
+    nxtseq(cows);
+    sort(all(cows), [](const array<int, 2> &x, const array<int, 2> &y) {
+        return x[1] < y[1];
+    });
+    for (int i = 0; i < n && !chickens.empty(); i++) {
+        multiset<int>::iterator chicken = chickens.lower_bound(cows[i][0]);
+        if (chicken != chickens.end() && *chicken <= cows[i][1]) {
+            chickens.erase(chicken);
         }
     }
-    cout << r;
+    cout << c - chickens.size();
 }
 
 int main() { // Don't touch it, compile with "_DEBUG" flag

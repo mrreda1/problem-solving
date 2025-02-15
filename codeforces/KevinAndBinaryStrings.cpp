@@ -25,26 +25,33 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = false;     // Multiple test cases?
+const bool T = true;      // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-    ll n = nxt<int>(), t = nxt<int>(), l = 1, r = 1e18;
-    vector<ll> machines(n);
-    nxtseq(machines);
-    while (l < r) {
-        ll p = 0, mid = l + (r - l) / 2;
-        for (ll m : machines) {
-            p += mid / m;
-            if (p > t) break;
+    string s = nxt<string>();
+    vector<int> ones;
+    int zero = -1, n = s.size();
+    cout << 1 << ' ' << n << ' ';
+    for (int i = 0; i < n; i++) {
+        if (s[i] == '0') {
+            zero = i;
+            break;
         }
-        if (p < t) {
-            l = mid + 1;
-        } else {
-            r = mid;
-        }
+        ones.push_back(i);
     }
-    cout << r;
+    if (zero == -1) {
+        cout << 1 << ' ' << 1;
+        return;
+    }
+    sort(all(ones), [&](int x, int y) {
+        int itr[2]{x, y}, cnt[2]{};
+        for (int i = 0; i <= 1; i++)
+            for (int j = zero; cnt[i] <= n - zero && s[itr[i]] != s[j];
+                 itr[i]++, j++, cnt[i]++);
+        return cnt[0] < cnt[1];
+    });
+    cout << *ones.rbegin() + 1 << ' ' << *ones.rbegin() + (n - zero);
 }
 
 int main() { // Don't touch it, compile with "_DEBUG" flag

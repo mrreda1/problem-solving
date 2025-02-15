@@ -26,25 +26,26 @@ using llu = uint64_t;
 using ll = int64_t;
 
 const bool T = false;     // Multiple test cases?
-const string iofile = ""; // I/O file?
+const string iofile = "angry"; // I/O file?
 
 void solve() {
-    ll n = nxt<int>(), t = nxt<int>(), l = 1, r = 1e18;
-    vector<ll> machines(n);
-    nxtseq(machines);
+    int n = nxt<int>(), k = nxt<int>(), l = 0, r = 1e9;
+    vector<int> hays(n);
+    nxtseq(hays), sort(all(hays));
     while (l < r) {
-        ll p = 0, mid = l + (r - l) / 2;
-        for (ll m : machines) {
-            p += mid / m;
-            if (p > t) break;
+        int mid = l + (r - l) / 2, c = 1;
+        for (int i = 0, f = hays[0]; i < n; i++) {
+            if (hays[i] > f + mid * 2) {
+                f = hays[i], c++;
+            }
         }
-        if (p < t) {
+        if (c > k) {
             l = mid + 1;
         } else {
             r = mid;
         }
     }
-    cout << r;
+    cout << l;
 }
 
 int main() { // Don't touch it, compile with "_DEBUG" flag

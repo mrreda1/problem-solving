@@ -28,23 +28,51 @@ using ll = int64_t;
 const bool T = false;     // Multiple test cases?
 const string iofile = ""; // I/O file?
 
-void solve() {
-    ll n = nxt<int>(), t = nxt<int>(), l = 1, r = 1e18;
-    vector<ll> machines(n);
-    nxtseq(machines);
-    while (l < r) {
-        ll p = 0, mid = l + (r - l) / 2;
-        for (ll m : machines) {
-            p += mid / m;
-            if (p > t) break;
-        }
-        if (p < t) {
-            l = mid + 1;
-        } else {
-            r = mid;
+#define MAXN 100001
+vector<int> spf(MAXN + 1, 1);
+
+void sieve() {
+    spf[0] = 0;
+    for (int i = 2; i <= MAXN; i++) {
+        if (spf[i] == 1) {
+            for (int j = i; j <= MAXN; j += i) {
+                if (spf[j] == 1) {
+                    spf[j] = i;
+                }
+            }
         }
     }
-    cout << r;
+}
+
+vector<int> getFactorization(int x) {
+    vector<int> ret;
+    while (x != 1) {
+        ret.push_back(spf[x]);
+        x /= spf[x];
+    }
+    return ret;
+}
+
+void solve() {
+    sieve();
+    int n = nxt<int>(), m = nxt<int>();
+    set<int> factors;
+    vector<int> res{1};
+    while (n--) {
+        vector<int> xf = getFactorization(nxt<int>());
+        factors.insert(all(xf));
+    }
+    for (int i = 2; i <= m; i++) {
+        vector<int> xf = getFactorization(i);
+        if (!accumulate(all(xf), 0, [&](int acc, int x) {
+                return acc + (factors.find(x) != factors.end()); })) {
+            res.push_back(i);
+        }
+    }
+    cout << res.size();
+    for (int x : res) {
+        cout << '\n' << x;
+    }
 }
 
 int main() { // Don't touch it, compile with "_DEBUG" flag

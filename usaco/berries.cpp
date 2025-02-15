@@ -25,26 +25,25 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = false;     // Multiple test cases?
-const string iofile = ""; // I/O file?
+const bool T = false;            // Multiple test cases?
+const string iofile = "berries"; // I/O file?
 
 void solve() {
-    ll n = nxt<int>(), t = nxt<int>(), l = 1, r = 1e18;
-    vector<ll> machines(n);
-    nxtseq(machines);
-    while (l < r) {
-        ll p = 0, mid = l + (r - l) / 2;
-        for (ll m : machines) {
-            p += mid / m;
-            if (p > t) break;
+    int n = nxt<int>(), k = nxt<int>(), ans = 0;
+    priority_queue<int> trees;
+    while (n--) trees.push(nxt<int>());
+    for (int x = 1; x <= 1e3; x++) {
+        int berries = 0;
+        priority_queue<int> tmp = trees;
+        for (int i = 1; i <= k; i++) {
+            int tree = tmp.top();
+            tmp.pop();
+            tmp.push(max(tree - x, 0));
+            berries += 2 * i > k ? min(x, tree) : 0;
         }
-        if (p < t) {
-            l = mid + 1;
-        } else {
-            r = mid;
-        }
+        ans = max(berries, ans);
     }
-    cout << r;
+    cout << ans;
 }
 
 int main() { // Don't touch it, compile with "_DEBUG" flag

@@ -29,22 +29,33 @@ const bool T = false;     // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-    ll n = nxt<int>(), t = nxt<int>(), l = 1, r = 1e18;
-    vector<ll> machines(n);
-    nxtseq(machines);
-    while (l < r) {
-        ll p = 0, mid = l + (r - l) / 2;
-        for (ll m : machines) {
-            p += mid / m;
-            if (p > t) break;
+    int n = nxt<int>(), m = nxt<int>(), d = nxt<int>();
+    vector<int> platforms(m), cells(n, 0);
+    nxtseq(platforms);
+    for (int i = d - 1, p = 0; i < n; i += d - 1, p++) {
+        if (p >= m) {
+            cout << "NO";
+            return;
         }
-        if (p < t) {
-            l = mid + 1;
-        } else {
-            r = mid;
+        while (i < n && platforms[p]) {
+            cells[i++] = p + 1;
+            platforms[p]--;
         }
     }
-    cout << r;
+    cout << "YES" << '\n';
+    int skip = accumulate(all(platforms), 0);
+    for (int i = 0; i < n; i++) {
+        if (!cells[i] && skip) {
+            skip--;
+        } else {
+            cout << cells[i] << ' ';
+        }
+    }
+    for (int i = 0; i < m; i++) {
+        while (platforms[i]--) {
+            cout << i + 1 << ' ';
+        }
+    }
 }
 
 int main() { // Don't touch it, compile with "_DEBUG" flag

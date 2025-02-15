@@ -25,26 +25,25 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = false;     // Multiple test cases?
+const bool T = true;      // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-    ll n = nxt<int>(), t = nxt<int>(), l = 1, r = 1e18;
-    vector<ll> machines(n);
-    nxtseq(machines);
-    while (l < r) {
-        ll p = 0, mid = l + (r - l) / 2;
-        for (ll m : machines) {
-            p += mid / m;
-            if (p > t) break;
-        }
-        if (p < t) {
-            l = mid + 1;
-        } else {
-            r = mid;
-        }
+    int n = nxt<int>(), m = nxt<int>(), wins = 0;
+    vector<int> op(n), sorted;
+    nxtseq(op), sorted = op, sort(all(sorted));
+    while (wins < n && m >= sorted[wins]) {
+        m -= sorted[wins++];
     }
-    cout << r;
+    if (wins == n) {
+        cout << 1;
+    } else if (wins == 0) {
+        cout << n + 1;
+    } else if (m + sorted[wins - 1] < op[wins]) {
+        cout << n - wins + 1;
+    } else {
+        cout << n - wins;
+    }
 }
 
 int main() { // Don't touch it, compile with "_DEBUG" flag

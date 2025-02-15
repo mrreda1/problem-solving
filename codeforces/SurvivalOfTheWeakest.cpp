@@ -28,8 +28,30 @@ const bool T = 0;
 const string iofile = "";
 
 void solve() {
-    int n = nxt<int>();
-    vector<ll> a();
+    ll n = nxt<int>(), mod = 1e9 + 7;
+    vector<ll> a(n);
+    nxtseq(a), sort(all(a));
+    while (n-- > 1) {
+        priority_queue<array<ll, 3>, vector<array<ll, 3>>, greater<array<ll, 3>>> pq;
+        vector<ll> weak(n);
+        for (int i = 0; i < n; i++) {
+            pq.push({a[i] + a[i + 1], i, i + 1});
+        }
+        for (int i = 0; i < n; i++) {
+            weak[i] = pq.top()[0];
+            array<ll, 2> w = {pq.top()[1], pq.top()[2]};
+            pq.pop();
+            if (w[1] < n) {
+                pq.push({a[w[0]] + a[w[1] + 1], w[0], w[1] + 1});
+            }
+        }
+        ll rem = weak[0] / mod;
+        for (int i = 0; i < n; i++) {
+            weak[i] -= mod * rem;
+        }
+        a = weak;
+    }
+    cout << a[0];
 }
 
 int main() {
