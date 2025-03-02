@@ -23,19 +23,54 @@ template <typename Itr> void nxtseq(Itr begin, Itr end);
 
 using ld = long double;
 using llu = uint64_t;
-using ll = int64_t;
+using ll = long long;
 
-const bool T = 0;     // Multiple test cases?
+const bool T = true;      // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-}
-
-void precompile() {
+    ll n, m, k, l = 0, r = 1e6;
+    cin >> n >> m >> k;
+    vector<vector<ll>> rooms(n + 1, vector<ll>(m + 1, 0));
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            rooms[i][j] = nxt<ll>() + rooms[i - 1][j] + rooms[i][j - 1] -
+                          rooms[i - 1][j - 1];
+        }
+    }
+    if (rooms[n][m] <= k) {
+        cout << -1;
+        return;
+    }
+    while (l < r) {
+        ll mid = l + (r - l) / 2, valid = false;
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= m; j++) {
+                if (rooms[i][j] - rooms[i][j - 1] - rooms[i - 1][j] +
+                        rooms[i - 1][j - 1] &&
+                    rooms[min(i + mid, n)][min(j + mid, m)] -
+                            rooms[max(i - mid, 1ll) - 1][min(j + mid, m)] -
+                            rooms[min(i + mid, n)][max(j - mid, 1ll) - 1] +
+                            rooms[max(i - mid, 1ll) - 1]
+                                 [max(j - mid, 1ll) - 1] >
+                        k) {
+                    r = mid;
+                    valid = true;
+                    break;
+                }
+            }
+            if (valid) {
+                break;
+            }
+        }
+        if (!valid) {
+            l = mid + 1;
+        }
+    }
+    cout << l;
 }
 
 int main() { // Don't touch it, compile with "_DEBUG" flag
-    precompile();
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG

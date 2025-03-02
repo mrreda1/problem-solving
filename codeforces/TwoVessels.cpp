@@ -25,10 +25,11 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;     // Multiple test cases?
+const bool T = 1;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
+    cout << ceil(abs(nxt<int>() - nxt<int>()) / (nxt<int>() * 2.0));
 }
 
 void precompile() {

@@ -25,17 +25,48 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;     // Multiple test cases?
+const bool T = true;      // Multiple test cases?
 const string iofile = ""; // I/O file?
 
-void solve() {
+ll kadane(const vector<ll> &a, vector<ll> &flip) {
+    ll n = a.size(), mn = 0, sum = 0, res = LLONG_MIN, l, r, mnl = 0, f = 0;
+    for (int i = 0; i < n; i++) {
+        f = (flip[i] ? !f : f);
+        sum += a[i] * (f ? -1 : 1);
+        if (sum - mn > res) {
+            res = sum - mn;
+            l = mnl;
+            r = i;
+        }
+        if (sum < mn) {
+            mn = sum;
+            mnl = i + 1;
+        }
+    }
+    flip[l] = !flip[l];
+    flip[r + 1] = !flip[r + 1];
+    return res;
 }
-
-void precompile() {
+void solve() {
+    ll n = nxt<ll>(), k = nxt<ll>(), res = 0;
+    string str = nxt<string>();
+    vector<ll> penalty(n, 0), flip(n + 1, 0);
+    for (int i = 0; i < n; i++) {
+        penalty[i] = nxt<ll>() * (str[i] == 'B' ? 1 : -1);
+        res += (str[i] == 'B' ? penalty[i] : 0);
+    }
+    while (k--) {
+        ll mxsub = kadane(penalty, flip);
+        if (mxsub <= 0) {
+            break;
+        } else {
+            res -= mxsub;
+        }
+    }
+    cout << res;
 }
 
 int main() { // Don't touch it, compile with "_DEBUG" flag
-    precompile();
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG

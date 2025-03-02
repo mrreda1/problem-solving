@@ -25,17 +25,37 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;     // Multiple test cases?
+const bool T = true;      // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-}
-
-void precompile() {
+    int n = nxt<int>(), st = nxt<int>() - 1, ed = nxt<int>() - 1;
+    vector<vector<int>> edges(n), dst(n, {-1, -1});
+    queue<int> q;
+    for (int i = 1; i < n; i++) {
+        int u = nxt<int>() - 1, v = nxt<int>() - 1;
+        edges[u].push_back(v);
+        edges[v].push_back(u);
+    }
+    q.push(ed);
+    dst[ed] = {0, ed};
+    while (!q.empty()) {
+        int crnt = q.front();
+        q.pop();
+        for (int v : edges[crnt]) {
+            if (dst[v][0] == -1) {
+                dst[v] = {dst[crnt][0] + 1, v};
+                q.push(v);
+            }
+        }
+    }
+    sort(all(dst), [](vector<int> &v, vector<int> &u) { return v[0] > u[0]; });
+    for (auto v : dst) {
+        cout << v[1] + 1 << ' ';
+    }
 }
 
 int main() { // Don't touch it, compile with "_DEBUG" flag
-    precompile();
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG

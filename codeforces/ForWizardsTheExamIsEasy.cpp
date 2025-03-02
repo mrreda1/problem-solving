@@ -25,17 +25,27 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;     // Multiple test cases?
+const bool T = true;      // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-}
-
-void precompile() {
+    ll n = nxt<ll>();
+    vector<ll> a(n);
+    array<ll, 3> res{};
+    nxtseq(a);
+    for (ll i = 0; i < n; i++) {
+        ll s = 0, b = 0;
+        for (ll j = i + 1; j < n; j++) {
+            s += a[i] < a[j], b += a[i] > a[j];
+            if (b - s > res[2]) {
+                res[2] = b - s, res[0] = i, res[1] = j;
+            }
+        }
+    }
+    cout << res[0] + 1 << ' ' << res[1] + 1;
 }
 
 int main() { // Don't touch it, compile with "_DEBUG" flag
-    precompile();
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG

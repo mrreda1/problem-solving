@@ -25,17 +25,15 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;     // Multiple test cases?
+const bool T = true;      // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-}
-
-void precompile() {
+    int n = nxt<int>();
+    cout << (n / 15) * 3 + min(3, n % 15 + 1);
 }
 
 int main() { // Don't touch it, compile with "_DEBUG" flag
-    precompile();
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG

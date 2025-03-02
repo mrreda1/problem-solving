@@ -25,13 +25,50 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;     // Multiple test cases?
+const bool T = true;      // Multiple test cases?
 const string iofile = ""; // I/O file?
 
-void solve() {
+
+const int MAXN = 1e6 + 1;
+vector<int> mem(MAXN, -1), spf(MAXN, 1);
+void sieve() {
+    spf[0] = 0;
+    for (int i = 2; i <= MAXN; i++) {
+        if (spf[i] == 1) {
+            for (int j = i; j <= MAXN; j += i) {
+                if (spf[j] == 1) {
+                    spf[j] = i;
+                }
+            }
+        }
+    }
+}
+vector<array<int, 2>> getFactorization(int x) {
+    vector<array<int, 2>> ret;
+    while (x != 1) {
+        if (!ret.empty() && ret.back()[0] == spf[x]) {
+            ret.back()[1]++;
+        } else {
+            ret.push_back({spf[x], 1});
+        }
+        x /= spf[x];
+    }
+    return ret;
 }
 
+void solve() {
+    ll n = nxt<int>(), sum = 1;
+    if (mem[n] == -1) {
+        vector<array<int, 2>> pfactors = getFactorization(n);
+        for (array<int, 2> f : pfactors) {
+            sum *= (pow(f[0], f[1] + 1) - 1) / (f[0] - 1);
+        }
+        mem[n] = sum - n;
+    }
+    cout << (mem[n] > n ? "abundant" : mem[n] == n ? "perfect" : "deficient");
+}
 void precompile() {
+    sieve(), mem[1] = 0;
 }
 
 int main() { // Don't touch it, compile with "_DEBUG" flag

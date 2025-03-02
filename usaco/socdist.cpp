@@ -25,17 +25,38 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;     // Multiple test cases?
-const string iofile = ""; // I/O file?
+const bool T = false;            // Multiple test cases?
+const string iofile = "socdist"; // I/O file?
 
 void solve() {
-}
-
-void precompile() {
+    ll n = nxt<int>(), m = nxt<int>(), l = 1, r = 1e18;
+    vector<array<ll, 2>> grass(m);
+    nxtseq(grass), sort(all(grass));
+    while (l < r) {
+        ll d = l + (r - l + 1) / 2, cows = 0, lst = -1e18;
+        for (int i = 0; i < m; i++) {
+            if (grass[i][0] - d >= lst) {
+                lst = grass[i][0];
+                cows++;
+            } else if (grass[i][1] - d < lst) {
+                continue;
+            } else {
+                lst += d;
+                cows++;
+            }
+            cows += (grass[i][1] - lst) / d;
+            lst = grass[i][1] - (grass[i][1] - lst) % d;
+        }
+        if (cows < n) {
+            r = d - 1;
+        } else {
+            l = d;
+        }
+    }
+    cout << l;
 }
 
 int main() { // Don't touch it, compile with "_DEBUG" flag
-    precompile();
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG

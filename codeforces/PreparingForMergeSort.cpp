@@ -25,10 +25,28 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;     // Multiple test cases?
+const bool T = 0;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
+    int n = nxt<int>();
+    vector<vector<int>> a;
+    while (n--) {
+        int x = nxt<int>();
+        auto itr = lower_bound(
+            rall(a), x, [](vector<int> &x, int k) { return *x.rbegin() < k; });
+        if (itr == a.rbegin()) {
+            a.push_back({x});
+        } else {
+            (*prev(itr)).push_back(x);
+        }
+    }
+    for (vector<int> &v : a) {
+        for (int x : v) {
+            cout << x << ' ';
+        }
+        cout << '\n';
+    }
 }
 
 void precompile() {

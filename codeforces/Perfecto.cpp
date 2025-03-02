@@ -25,17 +25,40 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;     // Multiple test cases?
+const bool T = true;      // Multiple test cases?
 const string iofile = ""; // I/O file?
 
-void solve() {
+bool psquare(ll x) {
+    ll sq = sqrt(x);
+    return (sq * sq == x);
 }
-
-void precompile() {
+void solve() {
+    ll n = nxt<ll>(), sum = 0;
+    if (psquare(n * (n + 1) / 2)) {
+        cout << -1;
+        return;
+    }
+    queue<int> a, res;
+    for (int i = n; i; i--) {
+        a.push(i);
+    }
+    while (!a.empty()) {
+        ll tmp = a.front();
+        a.pop();
+        if (psquare(tmp + sum)) {
+            a.push(tmp);
+        } else {
+            sum += tmp;
+            res.push(tmp);
+        }
+    }
+    while (!res.empty()) {
+        cout << res.front() << ' ';
+        res.pop();
+    }
 }
 
 int main() { // Don't touch it, compile with "_DEBUG" flag
-    precompile();
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG

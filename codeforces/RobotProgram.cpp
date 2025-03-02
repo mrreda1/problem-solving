@@ -25,17 +25,32 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;     // Multiple test cases?
+const bool T = true;      // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-}
-
-void precompile() {
+    ll n, x, k, ct, i = 0;
+    string dir;
+    cin >> n >> x >> k >> dir;
+    while (x && k && i < n) {
+        x += (dir[i++] == 'L' ? -1 : 1);
+        k--;
+    }
+    if (!k) {
+        cout << !x;
+    } else if (!x) {
+        ct = 0, i = 0;
+        do {
+            x += (dir[i++] == 'L' ? -1 : 1);
+            ct++;
+        } while (x && i < n);
+        cout << 1 + (x ? 0 : k / ct);
+    } else {
+        cout << 0;
+    }
 }
 
 int main() { // Don't touch it, compile with "_DEBUG" flag
-    precompile();
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG

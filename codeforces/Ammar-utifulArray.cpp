@@ -25,10 +25,42 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;     // Multiple test cases?
+const bool T = 0;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
+    ll n = nxt<int>(), q, diff = 0;
+    vector<ll> a(n), query(3);
+    map<ll, vector<ll>> colors;
+    map<ll, ll> cdiff;
+    nxtseq(a);
+    for (int i = 0; i < n; i++) {
+        int c = nxt<int>();
+        if (colors.find(c) == colors.end()) {
+            colors[c] = {0};
+        }
+        colors[c].push_back(a[i] + colors[c].back());
+    }
+    q = nxt<int>();
+    while (q--) {
+        nxtseq(query);
+        if (query[0] == 1) {
+            diff += query[2];
+            cdiff[query[1]] += query[2];
+        } else {
+            vector<ll> &prfx = colors[query[1]];
+            ll l = 0, r = prfx.size() - 1, d = cdiff[query[1]];
+            while (l < r) {
+                int mid = (l + r + 1) / 2;
+                if (prfx[mid] + (diff - d) * mid > query[2]) {
+                    r = mid - 1;
+                } else {
+                    l = mid;
+                }
+            }
+            cout << l << '\n';
+        }
+    }
 }
 
 void precompile() {

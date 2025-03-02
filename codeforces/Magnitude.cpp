@@ -25,10 +25,17 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;     // Multiple test cases?
+const bool T = 1;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
+    ll n = nxt<int>(), res, sum = 0;
+    vector<ll> a(n), mn(2, 0);
+    for (int i = 0; i < n; i++) {
+        a[i] = nxt<ll>(), sum += a[i];
+        mn = (sum < mn[0] ? vector<ll>({sum, i + 1}) : mn);
+    }
+    cout << accumulate(mn[1] + all(a), abs(mn[0]), [](ll acc, ll x){ return abs(acc + x);});
 }
 
 void precompile() {

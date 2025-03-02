@@ -25,17 +25,20 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;     // Multiple test cases?
+const bool T = true;     // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-}
-
-void precompile() {
+    ll n = nxt<ll>(), x = nxt<ll>(), lst = -1, sum = 0, i;
+    bitset<64> bits = x;
+    while (bits[++lst]);
+    for (i = 0; n-- && i < (1 << lst); i++) sum |= i;
+    if (sum != x && n == -1) i--, n++;
+    while (n-- >= 0) cout << x << ' ';
+    while (i--) cout << i << ' ';
 }
 
 int main() { // Don't touch it, compile with "_DEBUG" flag
-    precompile();
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG

@@ -25,17 +25,39 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;     // Multiple test cases?
+const bool T = false;     // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-}
-
-void precompile() {
+    ll n = nxt<ll>(), shift = 1e7, l = 0, r = 1e9 * shift;
+    vector<ll> x(n), v(n);
+    for (int i = 0; i < n; i++) {
+        x[i] = nxt<ll>() * shift;
+    }
+    nxtseq(v);
+    while (l < r) {
+        ll time = (l + r) / 2;
+        map<ll, ll> pos;
+        for (int i = 0; i < n; i++) {
+            ll offset = log10(v[i]) + log10(time) > 17 ? 1e17 : v[i] * time;
+            pos[x[i] - offset]++;
+            pos[x[i] + offset + 1]--;
+        }
+        ll mx = pos.begin()->second;
+        for (auto itr = next(pos.begin()); itr != pos.end(); ++itr) {
+            itr->second += prev(itr)->second;
+            mx = max(mx, itr->second);
+        }
+        if (mx == n) {
+            r = time;
+        } else {
+            l = time + 1;
+        }
+    }
+    cout << setprecision(6) << fixed << r / ld(shift);
 }
 
 int main() { // Don't touch it, compile with "_DEBUG" flag
-    precompile();
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG
