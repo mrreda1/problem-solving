@@ -29,45 +29,35 @@ const bool T = 0;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-    int p, c, u, v;
-    for (cin >> p >> c; p | c; cin >> p >> c) {
-        if (!c) {
-            cout << (p > 1 ? "YES" : "NO") << '\n';
-            continue;
+    int n = nxt<int>(), k = nxt<int>(), res = 0;
+    vector<set<int>> edges(n);
+    while (k--) {
+        int u = nxt<int>() - 1, v = nxt<int>() - 1;
+        if (nxt<int>() > nxt<int>()) {
+            edges[u].insert(v);
+        } else {
+            edges[v].insert(u);
         }
-        int bridges = 0;
-        vector<int> parent(p, -1), low(p, INT_MAX), disc(p, INT_MAX);
-        vector<vector<int>> edges(p);
-        for (int i = 0; i < c; i++) {
-            cin >> u >> v;
-            edges[u].push_back(v);
-            edges[v].push_back(u);
-        }
-        function<void(int)> dfs = [&](int node) {
-            static int timer = 0;
-            low[node] = disc[node] = timer++;
-            for (int neighbor : edges[node]) {
-                if (disc[neighbor] == INT_MAX) {
-                    parent[neighbor] = node;
-                    dfs(neighbor);
-                    low[node] = min(low[node], low[neighbor]);
-                    if (low[neighbor] > disc[node]) {
-                        bridges++;
-                    }
-                } else if (neighbor != parent[node]){
-                    low[node] = min(low[node], low[neighbor]);
+    }
+    for (int i = 0; i < n; i++) {
+        stack<int> pending({i});
+        vector<bool> visited(n, 0);
+        while (!pending.empty()) {
+            int current = pending.top();
+            pending.pop();
+            for (int neighbor : edges[current]) {
+                if (neighbor == i) {
+                    res++;
+                    pending = {};
+                    break;
+                } else if (!visited[neighbor]) {
+                    pending.push(neighbor);
+                    visited[neighbor] = true;
                 }
             }
-        };
-        dfs(0);
-        for (int time : disc) {
-            if (time == INT_MAX) {
-                bridges = 1;
-                break;
-            }
         }
-        cout << (bridges ? "YES" : "NO") << '\n';
     }
+    cout << res;
 }
 
 void precompile() {

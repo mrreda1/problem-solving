@@ -25,52 +25,56 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;         // Multiple test cases?
+const bool T = 0;     // Multiple test cases?
 const string iofile = ""; // I/O file?
 
-void solve() {
-    int p, c, u, v;
-    for (cin >> p >> c; p | c; cin >> p >> c) {
-        if (!c) {
-            cout << (p > 1 ? "YES" : "NO") << '\n';
-            continue;
-        }
-        int bridges = 0;
-        vector<int> parent(p, -1), low(p, INT_MAX), disc(p, INT_MAX);
-        vector<vector<int>> edges(p);
-        for (int i = 0; i < c; i++) {
-            cin >> u >> v;
-            edges[u].push_back(v);
-            edges[v].push_back(u);
-        }
-        function<void(int)> dfs = [&](int node) {
-            static int timer = 0;
-            low[node] = disc[node] = timer++;
-            for (int neighbor : edges[node]) {
-                if (disc[neighbor] == INT_MAX) {
-                    parent[neighbor] = node;
-                    dfs(neighbor);
-                    low[node] = min(low[node], low[neighbor]);
-                    if (low[neighbor] > disc[node]) {
-                        bridges++;
-                    }
-                } else if (neighbor != parent[node]){
-                    low[node] = min(low[node], low[neighbor]);
+const int MAXN = 1e6 + 1;
+vector<int> spf(MAXN, 1);
+void sieve() {
+    spf[0] = 0;
+    for (int i = 2; i <= MAXN; i++) {
+        if (spf[i] == 1) {
+            for (int j = i; j <= MAXN; j += i) {
+                if (spf[j] == 1) {
+                    spf[j] = i;
                 }
             }
-        };
-        dfs(0);
-        for (int time : disc) {
-            if (time == INT_MAX) {
-                bridges = 1;
-                break;
-            }
         }
-        cout << (bridges ? "YES" : "NO") << '\n';
     }
+}
+vector<array<int, 2>> getFactorization(int x) {
+    vector<array<int, 2>> ret;
+    while (x != 1) {
+        if (!ret.empty() && ret.back()[0] == spf[x]) {
+            ret.back()[1]++;
+        } else {
+            ret.push_back({spf[x], 1});
+        }
+        x /= spf[x];
+    }
+    return ret;
+}
+
+void solve() {
+    ll n = nxt<int>(), res = 1;
+    map<int, vector<int>> div_freq;
+    for (int i = 0; i < n; i++) {
+        vector<array<int, 2>> pfactors = getFactorization(nxt<int>());
+        for (array<int, 2> factor : pfactors) {
+            div_freq[factor[0]].push_back(factor[1]);
+        }
+    }
+    for (auto [div, freq] : div_freq) {
+        sort(all(freq));
+        if (freq.size() >= n - 1) {
+            res *= pow(div, freq[freq.size() == n]);
+        }
+    }
+    cout << res;
 }
 
 void precompile() {
+    sieve();
 }
 
 int main() { // Don't touch it, compile with "_DEBUG" flag

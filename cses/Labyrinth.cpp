@@ -25,48 +25,72 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
+map<vector<int>, char> dir{
+    {{1, 0}, 'U'}, {{-1, 0}, 'D'}, {{0, -1}, 'R'}, {{0, 1}, 'L'}};
+
 const bool T = 0;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
+bool isValid(int i, int j, const vector<vector<char>> &grid,
+             const vector<vector<vector<int>>> &parent) {
+    int n = grid.size(), m = grid[0].size();
+    return (i | j) >= 0 && i < n && j < m && grid[i][j] != '#' &&
+           parent[i][j][0] == -1;
+}
 void solve() {
-    int p, c, u, v;
-    for (cin >> p >> c; p | c; cin >> p >> c) {
-        if (!c) {
-            cout << (p > 1 ? "YES" : "NO") << '\n';
-            continue;
-        }
-        int bridges = 0;
-        vector<int> parent(p, -1), low(p, INT_MAX), disc(p, INT_MAX);
-        vector<vector<int>> edges(p);
-        for (int i = 0; i < c; i++) {
-            cin >> u >> v;
-            edges[u].push_back(v);
-            edges[v].push_back(u);
-        }
-        function<void(int)> dfs = [&](int node) {
-            static int timer = 0;
-            low[node] = disc[node] = timer++;
-            for (int neighbor : edges[node]) {
-                if (disc[neighbor] == INT_MAX) {
-                    parent[neighbor] = node;
-                    dfs(neighbor);
-                    low[node] = min(low[node], low[neighbor]);
-                    if (low[neighbor] > disc[node]) {
-                        bridges++;
-                    }
-                } else if (neighbor != parent[node]){
-                    low[node] = min(low[node], low[neighbor]);
-                }
-            }
-        };
-        dfs(0);
-        for (int time : disc) {
-            if (time == INT_MAX) {
-                bridges = 1;
-                break;
+    int n = nxt<int>(), m = nxt<int>();
+    vector<vector<char>> grid(n, vector<char>(m));
+    vector<vector<vector<int>>> parents(n, vector<vector<int>>(m, {-1, -1}));
+    vector<int> src, dist;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            grid[i][j] = nxt<char>();
+            if (grid[i][j] == 'A') {
+                src = {i, j};
+            } else if (grid[i][j] == 'B') {
+                dist = {i, j};
             }
         }
-        cout << (bridges ? "YES" : "NO") << '\n';
+    }
+    queue<vector<int>> pending;
+    pending.push(src);
+    parents[src[0]][src[1]] = {0};
+    while (!pending.empty()) {
+        vector<int> p = pending.front();
+        pending.pop();
+        if (isValid(p[0], p[1] + 1, grid, parents)) {
+            parents[p[0]][p[1] + 1] = p;
+            pending.push({p[0], p[1] + 1});
+        }
+        if (isValid(p[0], p[1] - 1, grid, parents)) {
+            parents[p[0]][p[1] - 1] = p;
+            pending.push({p[0], p[1] - 1});
+        }
+        if (isValid(p[0] + 1, p[1], grid, parents)) {
+            parents[p[0] + 1][p[1]] = p;
+            pending.push({p[0] + 1, p[1]});
+        }
+        if (isValid(p[0] - 1, p[1], grid, parents)) {
+            parents[p[0] - 1][p[1]] = p;
+            pending.push({p[0] - 1, p[1]});
+        }
+    }
+    if (parents[dist[0]][dist[1]][0] == -1) {
+        cout << "NO";
+        return;
+    }
+    cout << "YES\n";
+    vector<char> path;
+    while (dist != src) {
+        vector<int> parent = parents[dist[0]][dist[1]];
+        vector<int> diff = {parent[0] - dist[0], parent[1] - dist[1]};
+        path.push_back(dir[diff]);
+        dist = parent;
+    }
+    reverse(all(path));
+    cout << path.size() << '\n';
+    for (char step : path) {
+        cout << step;
     }
 }
 

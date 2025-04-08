@@ -29,45 +29,57 @@ const bool T = 0;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-    int p, c, u, v;
-    for (cin >> p >> c; p | c; cin >> p >> c) {
-        if (!c) {
-            cout << (p > 1 ? "YES" : "NO") << '\n';
-            continue;
-        }
-        int bridges = 0;
-        vector<int> parent(p, -1), low(p, INT_MAX), disc(p, INT_MAX);
-        vector<vector<int>> edges(p);
-        for (int i = 0; i < c; i++) {
-            cin >> u >> v;
+    int n = nxt<int>(), k = nxt<int>(), res = 0, id = 0, sccCount = 0;
+    vector<vector<int>> edges(n);
+    vector<int> ids(n, -1), low(n);
+    vector<bool> onStack(n, false);
+    stack<int> stk;
+    vector<int> freq(n, 0);
+
+    while (k--) {
+        int u = nxt<int>() - 1, v = nxt<int>() - 1;
+        if (nxt<int>() > nxt<int>()) {
             edges[u].push_back(v);
+        } else {
             edges[v].push_back(u);
         }
-        function<void(int)> dfs = [&](int node) {
-            static int timer = 0;
-            low[node] = disc[node] = timer++;
-            for (int neighbor : edges[node]) {
-                if (disc[neighbor] == INT_MAX) {
-                    parent[neighbor] = node;
-                    dfs(neighbor);
-                    low[node] = min(low[node], low[neighbor]);
-                    if (low[neighbor] > disc[node]) {
-                        bridges++;
-                    }
-                } else if (neighbor != parent[node]){
-                    low[node] = min(low[node], low[neighbor]);
-                }
+    }
+    function<void(int)> dfs = [&](int at) {
+        stk.push(at);
+        onStack[at] = true;
+        ids[at] = low[at] = id++;
+
+        for (int to : edges[at]) {
+            if (ids[to] == -1) {
+                dfs(to);
             }
-        };
-        dfs(0);
-        for (int time : disc) {
-            if (time == INT_MAX) {
-                bridges = 1;
-                break;
+            if (onStack[to]) {
+                low[at] = min(low[at], low[to]);
             }
         }
-        cout << (bridges ? "YES" : "NO") << '\n';
+        if (ids[at] == low[at]) {
+            int node;
+            do {
+                node = stk.top();
+                stk.pop();
+                onStack[node] = false;
+                low[node] = ids[at];
+            } while (node != at);
+            sccCount++;
+        }
+    };
+    for (int i = 0; i < n; i++) {
+        if (ids[i] == -1) {
+            dfs(i);
+        }
     }
+    for (int i = 0; i < n; i++) {
+        freq[low[i]]++;
+    }
+    for (int x : freq) {
+        res += x > 1 ? x : 0;
+    }
+    cout << res;
 }
 
 void precompile() {

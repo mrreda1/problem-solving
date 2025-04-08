@@ -29,44 +29,43 @@ const bool T = 0;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-    int p, c, u, v;
-    for (cin >> p >> c; p | c; cin >> p >> c) {
-        if (!c) {
-            cout << (p > 1 ? "YES" : "NO") << '\n';
-            continue;
-        }
-        int bridges = 0;
-        vector<int> parent(p, -1), low(p, INT_MAX), disc(p, INT_MAX);
-        vector<vector<int>> edges(p);
-        for (int i = 0; i < c; i++) {
-            cin >> u >> v;
-            edges[u].push_back(v);
-            edges[v].push_back(u);
-        }
-        function<void(int)> dfs = [&](int node) {
-            static int timer = 0;
-            low[node] = disc[node] = timer++;
-            for (int neighbor : edges[node]) {
-                if (disc[neighbor] == INT_MAX) {
-                    parent[neighbor] = node;
-                    dfs(neighbor);
-                    low[node] = min(low[node], low[neighbor]);
-                    if (low[neighbor] > disc[node]) {
-                        bridges++;
-                    }
-                } else if (neighbor != parent[node]){
-                    low[node] = min(low[node], low[neighbor]);
+    int n = nxt<int>(), m = nxt<int>();
+    vector<int> scc;
+    vector<set<int>> no_edges(n);
+    set<int> undiscovered;
+    for (int i = 0; i < n; i++) {
+        undiscovered.insert(i);
+    }
+    while (m--) {
+        int u = nxt<int>() - 1, v = nxt<int>() - 1;
+        no_edges[u].insert(v);
+        no_edges[v].insert(u);
+    }
+    while (!undiscovered.empty()) {
+        int st = *undiscovered.begin();
+        undiscovered.erase(undiscovered.begin());
+        queue<int> pending({st});
+        scc.push_back(0);
+        while (!pending.empty()) {
+            int current = pending.front();
+            pending.pop(), scc.back()++;
+            vector<int> to_remove;
+            for (int node : undiscovered) {
+                if (no_edges[current].find(node) != no_edges[current].end()) {
+                    continue;
                 }
+                pending.push(node);
+                to_remove.push_back(node);
             }
-        };
-        dfs(0);
-        for (int time : disc) {
-            if (time == INT_MAX) {
-                bridges = 1;
-                break;
+            for (int node : to_remove) {
+                undiscovered.erase(node);
             }
         }
-        cout << (bridges ? "YES" : "NO") << '\n';
+    }
+    sort(all(scc));
+    cout << scc.size() << '\n';
+    for (int component : scc) {
+        cout << component << ' ';
     }
 }
 

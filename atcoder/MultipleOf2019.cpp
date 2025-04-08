@@ -29,45 +29,17 @@ const bool T = 0;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-    int p, c, u, v;
-    for (cin >> p >> c; p | c; cin >> p >> c) {
-        if (!c) {
-            cout << (p > 1 ? "YES" : "NO") << '\n';
-            continue;
-        }
-        int bridges = 0;
-        vector<int> parent(p, -1), low(p, INT_MAX), disc(p, INT_MAX);
-        vector<vector<int>> edges(p);
-        for (int i = 0; i < c; i++) {
-            cin >> u >> v;
-            edges[u].push_back(v);
-            edges[v].push_back(u);
-        }
-        function<void(int)> dfs = [&](int node) {
-            static int timer = 0;
-            low[node] = disc[node] = timer++;
-            for (int neighbor : edges[node]) {
-                if (disc[neighbor] == INT_MAX) {
-                    parent[neighbor] = node;
-                    dfs(neighbor);
-                    low[node] = min(low[node], low[neighbor]);
-                    if (low[neighbor] > disc[node]) {
-                        bridges++;
-                    }
-                } else if (neighbor != parent[node]){
-                    low[node] = min(low[node], low[neighbor]);
-                }
-            }
-        };
-        dfs(0);
-        for (int time : disc) {
-            if (time == INT_MAX) {
-                bridges = 1;
-                break;
-            }
-        }
-        cout << (bridges ? "YES" : "NO") << '\n';
+    string str = nxt<string>();
+    int n = str.size(), mul = 1, num = 0, mod = 2019;
+    vector<int> rem(mod, 0);
+    rem[0] = 1;
+    for (int i = n - 1; i >= 0; i--) {
+        num = (num + mul * (str[i] - '0')) % mod;
+        mul = (10 * mul) % mod;
+        rem[num]++;
     }
+    cout << accumulate(all(rem), 0ll,
+                       [](int acc, int x) { return acc + x * (x - 1) / 2; });
 }
 
 void precompile() {

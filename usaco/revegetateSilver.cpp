@@ -25,49 +25,52 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;         // Multiple test cases?
-const string iofile = ""; // I/O file?
+const bool T = 0;                   // Multiple test cases?
+const string iofile = "revegetate"; // I/O file?
 
+struct edge {
+    int id;
+    bool same_color;
+};
 void solve() {
-    int p, c, u, v;
-    for (cin >> p >> c; p | c; cin >> p >> c) {
-        if (!c) {
-            cout << (p > 1 ? "YES" : "NO") << '\n';
+    int n = nxt<int>(), m = nxt<int>(), components = 0;
+    vector<vector<edge>> edges(n);
+    vector<int> colors(n, -1);
+    while (m--) {
+        bool same_color = nxt<char>() == 'S';
+        int u = nxt<int>() - 1, v = nxt<int>() - 1;
+        edges[u].push_back({v, same_color});
+        edges[v].push_back({u, same_color});
+    }
+    for (int st = 0; st < n; st++) {
+        if (colors[st] != -1) {
             continue;
         }
-        int bridges = 0;
-        vector<int> parent(p, -1), low(p, INT_MAX), disc(p, INT_MAX);
-        vector<vector<int>> edges(p);
-        for (int i = 0; i < c; i++) {
-            cin >> u >> v;
-            edges[u].push_back(v);
-            edges[v].push_back(u);
-        }
-        function<void(int)> dfs = [&](int node) {
-            static int timer = 0;
-            low[node] = disc[node] = timer++;
-            for (int neighbor : edges[node]) {
-                if (disc[neighbor] == INT_MAX) {
-                    parent[neighbor] = node;
-                    dfs(neighbor);
-                    low[node] = min(low[node], low[neighbor]);
-                    if (low[neighbor] > disc[node]) {
-                        bridges++;
+        stack<int> pending({st});
+        components++;
+        colors[st] = 0;
+        while (!pending.empty()) {
+            int current = pending.top();
+            pending.pop();
+            for (edge neighbor : edges[current]) {
+                if (colors[neighbor.id] != -1) {
+                    if (neighbor.same_color ^
+                        (colors[neighbor.id] == colors[current])) {
+                        cout << 0;
+                        return;
                     }
-                } else if (neighbor != parent[node]){
-                    low[node] = min(low[node], low[neighbor]);
+                    continue;
                 }
-            }
-        };
-        dfs(0);
-        for (int time : disc) {
-            if (time == INT_MAX) {
-                bridges = 1;
-                break;
+                if (neighbor.same_color) {
+                    colors[neighbor.id] = colors[current];
+                } else {
+                    colors[neighbor.id] = !colors[current];
+                }
+                pending.push(neighbor.id);
             }
         }
-        cout << (bridges ? "YES" : "NO") << '\n';
     }
+    cout << '1' << string(components, '0');
 }
 
 void precompile() {

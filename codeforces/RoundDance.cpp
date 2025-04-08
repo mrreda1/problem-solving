@@ -25,49 +25,66 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;         // Multiple test cases?
+const bool T = 1;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-    int p, c, u, v;
-    for (cin >> p >> c; p | c; cin >> p >> c) {
-        if (!c) {
-            cout << (p > 1 ? "YES" : "NO") << '\n';
-            continue;
-        }
-        int bridges = 0;
-        vector<int> parent(p, -1), low(p, INT_MAX), disc(p, INT_MAX);
-        vector<vector<int>> edges(p);
-        for (int i = 0; i < c; i++) {
-            cin >> u >> v;
-            edges[u].push_back(v);
-            edges[v].push_back(u);
-        }
-        function<void(int)> dfs = [&](int node) {
-            static int timer = 0;
-            low[node] = disc[node] = timer++;
-            for (int neighbor : edges[node]) {
-                if (disc[neighbor] == INT_MAX) {
-                    parent[neighbor] = node;
-                    dfs(neighbor);
-                    low[node] = min(low[node], low[neighbor]);
-                    if (low[neighbor] > disc[node]) {
-                        bridges++;
-                    }
-                } else if (neighbor != parent[node]){
-                    low[node] = min(low[node], low[neighbor]);
-                }
-            }
-        };
-        dfs(0);
-        for (int time : disc) {
-            if (time == INT_MAX) {
-                bridges = 1;
-                break;
-            }
-        }
-        cout << (bridges ? "YES" : "NO") << '\n';
+    int n = nxt<int>();
+    vector<set<int>> edges(n);
+    vector<int> ids(n, -1), low(n);
+    vector<bool> onStack(n, false);
+    stack<int> stk;
+    map<int, vector<int>> scc;
+    for (int i = 0; i < n; i++) {
+        int u = nxt<int>() - 1;
+        edges[i].insert(u);
+        edges[u].insert(i);
     }
+    function<void(int)> dfs = [&](int at) {
+        static int id = 0;
+        stk.push(at);
+        onStack[at] = true;
+        ids[at] = low[at] = id++;
+
+        for (int to : edges[at]) {
+            if (ids[to] == -1) {
+                dfs(to);
+            }
+            if (onStack[to]) {
+                low[at] = min(low[at], low[to]);
+            }
+        }
+        if (ids[at] == low[at]) {
+            int node;
+            do {
+                node = stk.top();
+                stk.pop();
+                onStack[node] = false;
+                low[node] = ids[at];
+            } while (node != at);
+        }
+    };
+    for (int i = 0; i < n; i++) {
+        if (ids[i] == -1) {
+            dfs(i);
+        }
+    }
+    for (int i = 0; i < n; i++) {
+        scc[low[i]].push_back(i);
+    }
+    int sum = 0;
+    int zeros = 0;
+    for (auto itr = scc.begin(); itr != scc.end(); ++itr) {
+        int cnt = 0;
+        for (int u : itr->second) {
+            cnt += (edges[u].size() == 1);
+        }
+        zeros += !cnt;
+        sum += cnt;
+    }
+    int m = (scc.size() - zeros - 1) * 2;
+    int mn = zeros + (m < 0 ? 0 : sum >= m ? 1 : (m - sum) / 2);
+    cout << mn << ' ' << scc.size();
 }
 
 void precompile() {

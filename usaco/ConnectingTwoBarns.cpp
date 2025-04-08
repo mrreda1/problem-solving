@@ -25,49 +25,61 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;         // Multiple test cases?
+const bool T = 1;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-    int p, c, u, v;
-    for (cin >> p >> c; p | c; cin >> p >> c) {
-        if (!c) {
-            cout << (p > 1 ? "YES" : "NO") << '\n';
+    ll n = nxt<int>(), m = nxt<int>(), res = 1e10;
+    vector<vector<int>> edges(n), scc;
+    vector<int> sccid(n, -1);
+    while (m--) {
+        int u = nxt<int>() - 1, v = nxt<int>() - 1;
+        edges[u].push_back(v);
+        edges[v].push_back(u);
+    }
+    for (int st = 0, id = -1; st < n; st++) {
+        if (sccid[st] != -1)
             continue;
-        }
-        int bridges = 0;
-        vector<int> parent(p, -1), low(p, INT_MAX), disc(p, INT_MAX);
-        vector<vector<int>> edges(p);
-        for (int i = 0; i < c; i++) {
-            cin >> u >> v;
-            edges[u].push_back(v);
-            edges[v].push_back(u);
-        }
-        function<void(int)> dfs = [&](int node) {
-            static int timer = 0;
-            low[node] = disc[node] = timer++;
-            for (int neighbor : edges[node]) {
-                if (disc[neighbor] == INT_MAX) {
-                    parent[neighbor] = node;
-                    dfs(neighbor);
-                    low[node] = min(low[node], low[neighbor]);
-                    if (low[neighbor] > disc[node]) {
-                        bridges++;
-                    }
-                } else if (neighbor != parent[node]){
-                    low[node] = min(low[node], low[neighbor]);
+        stack<int> pending({st});
+        scc.push_back({st}), sccid[st] = ++id;
+        while (!pending.empty()) {
+            int current = pending.top();
+            pending.pop();
+            for (int neighbor : edges[current]) {
+                if (sccid[neighbor] == -1) {
+                    sccid[neighbor] = id;
+                    scc[id].push_back(neighbor);
+                    pending.push(neighbor);
                 }
             }
-        };
-        dfs(0);
-        for (int time : disc) {
-            if (time == INT_MAX) {
-                bridges = 1;
-                break;
+        }
+        sort(all(scc[id]));
+    }
+    if (sccid[0] == sccid[n - 1]) {
+        cout << 0;
+        return;
+    }
+    int nc = scc.size();
+    vector<vector<int>> distance(2, vector<int>(nc, INT_MAX));
+    for (int x = 0; x < 2; x++) {
+        int st = sccid[x * (n - 1)];
+        for (int i = 0; i < nc; i++) {
+            for (int v : scc[i]) {
+                auto u = lower_bound(all(scc[st]), v + 1);
+                if (u != scc[st].end()) {
+                    distance[x][i] = min(distance[x][i], abs(*u - v));
+                }
+                if (u != scc[st].begin()) {
+                    distance[x][i] = min(distance[x][i], abs(*prev(u) - v));
+                }
             }
         }
-        cout << (bridges ? "YES" : "NO") << '\n';
     }
+    for (int i = 0; i < nc; i++) {
+        res = min(res, ll(distance[0][i]) * ll(distance[0][i]) +
+                           ll(distance[1][i]) * ll(distance[1][i]));
+    }
+    cout << res;
 }
 
 void precompile() {

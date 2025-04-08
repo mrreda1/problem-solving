@@ -28,53 +28,61 @@ using ll = int64_t;
 const bool T = 0;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
-void solve() {
-    int p, c, u, v;
-    for (cin >> p >> c; p | c; cin >> p >> c) {
-        if (!c) {
-            cout << (p > 1 ? "YES" : "NO") << '\n';
-            continue;
-        }
-        int bridges = 0;
-        vector<int> parent(p, -1), low(p, INT_MAX), disc(p, INT_MAX);
-        vector<vector<int>> edges(p);
-        for (int i = 0; i < c; i++) {
-            cin >> u >> v;
-            edges[u].push_back(v);
-            edges[v].push_back(u);
-        }
-        function<void(int)> dfs = [&](int node) {
-            static int timer = 0;
-            low[node] = disc[node] = timer++;
-            for (int neighbor : edges[node]) {
-                if (disc[neighbor] == INT_MAX) {
-                    parent[neighbor] = node;
-                    dfs(neighbor);
-                    low[node] = min(low[node], low[neighbor]);
-                    if (low[neighbor] > disc[node]) {
-                        bridges++;
-                    }
-                } else if (neighbor != parent[node]){
-                    low[node] = min(low[node], low[neighbor]);
-                }
-            }
-        };
-        dfs(0);
-        for (int time : disc) {
-            if (time == INT_MAX) {
-                bridges = 1;
-                break;
+const int MAX_N = 1e6;
+ll phi[MAX_N + 1];
+
+void solve(ll n) {
+    ll ans = 0;
+    ll m = sqrt(n);
+    for (ll d = 1; d <= m; d++) {
+        ll a = n / (d + 1) + 1;
+        ll b = n / d;
+        ans += d * phi[b];
+        a = max(a, m + 1);
+        if (a > b) continue;
+        ll cnt = b - a + 1;
+        ll sum_d = (a + b) * cnt / 2;
+        ans += sum_d * phi[d];
+    }
+    ans -= n * (n + 1) / 2;
+    cout << ans;
+}
+
+void precompute() {
+    iota(phi, phi + MAX_N + 1, 0);
+    for (int i = 2; i <= MAX_N; i++) {
+        if (phi[i] == i) {
+            for (int j = i; j <= MAX_N; j += i) {
+                phi[j] -= phi[j] / i;
             }
         }
-        cout << (bridges ? "YES" : "NO") << '\n';
+    }
+    for (int i = 2; i <= MAX_N; i++) {
+        phi[i] += phi[i - 1];
     }
 }
 
-void precompile() {
-}
+void IOSetter();
+void TCGetter();
 
 int main() { // Don't touch it, compile with "_DEBUG" flag
-    precompile();
+    precompute();
+    IOSetter();
+    TCGetter();
+}
+
+void TCGetter() {
+    while (true) {
+        int n = nxt<int>();
+        if (n == 0) {
+            break;
+        }
+        solve(n);
+        cout << '\n';
+    }
+};
+
+void IOSetter() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG
@@ -86,11 +94,8 @@ int main() { // Don't touch it, compile with "_DEBUG" flag
         freopen((iofile + ".out").c_str(), "w", stdout);
     }
 #endif
-    int t = T ? nxt<int>() : 1;
-    do {
-        solve();
-    } while (--t && cout << '\n');
-}
+};
+
 template <typename T> T nxt() {
     T x;
     cin >> x;

@@ -25,49 +25,48 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;         // Multiple test cases?
+const bool T = 1;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-    int p, c, u, v;
-    for (cin >> p >> c; p | c; cin >> p >> c) {
-        if (!c) {
-            cout << (p > 1 ? "YES" : "NO") << '\n';
-            continue;
-        }
-        int bridges = 0;
-        vector<int> parent(p, -1), low(p, INT_MAX), disc(p, INT_MAX);
-        vector<vector<int>> edges(p);
-        for (int i = 0; i < c; i++) {
-            cin >> u >> v;
-            edges[u].push_back(v);
-            edges[v].push_back(u);
-        }
-        function<void(int)> dfs = [&](int node) {
-            static int timer = 0;
-            low[node] = disc[node] = timer++;
-            for (int neighbor : edges[node]) {
-                if (disc[neighbor] == INT_MAX) {
-                    parent[neighbor] = node;
-                    dfs(neighbor);
-                    low[node] = min(low[node], low[neighbor]);
-                    if (low[neighbor] > disc[node]) {
-                        bridges++;
-                    }
-                } else if (neighbor != parent[node]){
-                    low[node] = min(low[node], low[neighbor]);
+    ll n, m, res = 0;
+    cin >> n >> m;
+    vector<ll> a(n);
+    nxtseq(a);
+    if (m == 1) {
+        ll max1 = *max_element(1 + all(a)) + a[0];
+        ll max2 = *max_element(all(a) - 1) + a[n - 1];
+        cout << max(max1, max2);
+        return;
+    }
+    for (int i = 0; i < n; i++) {
+        ll sum = a[i], l = 1, r = 1, k = m;
+        vector<ll> l_a(a.begin(), a.begin() + i), r_a(a.begin() + i + 1, a.end());
+        sort(rall(l_a)), sort(rall(r_a));
+        if (l_a.empty()) {
+            sum += accumulate(r_a.begin(), r_a.begin() + k, 0ll);
+        } else if (r_a.empty()) {
+            sum += accumulate(l_a.begin(), l_a.begin() + k, 0ll);
+        } else {
+            sum += l_a[0] + r_a[0];
+            k -= 2;
+            while (k--) {
+                if (l >= l_a.size()) {
+                    sum += accumulate(r_a.begin() + r, r_a.begin() + r + k + 1, 0ll);
+                    break;
+                } else if (r >= r_a.size()) {
+                    sum += accumulate(l_a.begin() + l, l_a.begin() + l + k + 1, 0ll);
+                    break;
+                } else if (l_a[l] > r_a[r]) {
+                    sum += l_a[l++];
+                } else {
+                    sum += r_a[r++];
                 }
             }
-        };
-        dfs(0);
-        for (int time : disc) {
-            if (time == INT_MAX) {
-                bridges = 1;
-                break;
-            }
         }
-        cout << (bridges ? "YES" : "NO") << '\n';
+        res = max(res, sum);
     }
+    cout << res;
 }
 
 void precompile() {

@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+#include <numeric>
 
 #define all(v) v.begin(), v.end()
 #define rall(v) v.rbegin(), v.rend()
@@ -25,49 +26,47 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;         // Multiple test cases?
-const string iofile = ""; // I/O file?
+const bool T = 0;                // Multiple test cases?
+const string iofile = "moocast"; // I/O file?
 
 void solve() {
-    int p, c, u, v;
-    for (cin >> p >> c; p | c; cin >> p >> c) {
-        if (!c) {
-            cout << (p > 1 ? "YES" : "NO") << '\n';
-            continue;
-        }
-        int bridges = 0;
-        vector<int> parent(p, -1), low(p, INT_MAX), disc(p, INT_MAX);
-        vector<vector<int>> edges(p);
-        for (int i = 0; i < c; i++) {
-            cin >> u >> v;
-            edges[u].push_back(v);
-            edges[v].push_back(u);
-        }
-        function<void(int)> dfs = [&](int node) {
-            static int timer = 0;
-            low[node] = disc[node] = timer++;
-            for (int neighbor : edges[node]) {
-                if (disc[neighbor] == INT_MAX) {
-                    parent[neighbor] = node;
-                    dfs(neighbor);
-                    low[node] = min(low[node], low[neighbor]);
-                    if (low[neighbor] > disc[node]) {
-                        bridges++;
-                    }
-                } else if (neighbor != parent[node]){
-                    low[node] = min(low[node], low[neighbor]);
+    int l = 0, r = 2 * pow(25e3, 2), ans = r, n = nxt<int>();
+    vector<array<int, 2>> cows(n);
+    nxtseq(cows);
+    while (l <= r) {
+        int mid = l + (r - l) / 2;
+        vector<vector<int>> edges(n);
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                if (pow(cows[i][0] - cows[j][0], 2) +
+                        pow(cows[i][1] - cows[j][1], 2) <=
+                    mid) {
+                    edges[i].push_back(j);
+                    edges[j].push_back(i);
                 }
             }
-        };
-        dfs(0);
-        for (int time : disc) {
-            if (time == INT_MAX) {
-                bridges = 1;
-                break;
+        }
+        queue<int> pending({0});
+        vector<bool> undiscovered(n, true);
+        undiscovered[0] = false;
+        while (!pending.empty()) {
+            int current = pending.front();
+            pending.pop();
+            for (int neighbor : edges[current]) {
+                if (undiscovered[neighbor]) {
+                    undiscovered[neighbor] = false;
+                    pending.push(neighbor);
+                }
             }
         }
-        cout << (bridges ? "YES" : "NO") << '\n';
+        if (accumulate(all(undiscovered), 0)) {
+            l = mid + 1;
+        } else {
+            ans = mid;
+            r = mid - 1;
+        }
     }
+    cout << ans;
 }
 
 void precompile() {

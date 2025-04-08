@@ -25,49 +25,43 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;         // Multiple test cases?
+const bool T = 1;     // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-    int p, c, u, v;
-    for (cin >> p >> c; p | c; cin >> p >> c) {
-        if (!c) {
-            cout << (p > 1 ? "YES" : "NO") << '\n';
+    ll n, m, res = 0;
+    cin >> n >> m;
+    vector<ll> colors(m), rev(m), suff(m);
+    for (int i = 0; i < m; i++) {
+        colors[i] = min(nxt<ll>(), n - 1);
+    }
+    sort(all(colors));
+    for (int i = m - 1; i >= 0; i--) {
+        rev[i] = n - colors[i] - 1;
+    }
+    suff[m - 1] = rev[m - 1];
+    for (int i = m - 2; i >= 0; i--) {
+        suff[i] = suff[i + 1] + rev[i];
+    }
+    ll ptr = 1;
+    while (ptr < m && rev[ptr] > colors[0]) {
+        ptr++;
+    }
+    for (ll i = 0; i < m - 1; i++) {
+        if (rev[m - 1] >= colors[i]) {
             continue;
         }
-        int bridges = 0;
-        vector<int> parent(p, -1), low(p, INT_MAX), disc(p, INT_MAX);
-        vector<vector<int>> edges(p);
-        for (int i = 0; i < c; i++) {
-            cin >> u >> v;
-            edges[u].push_back(v);
-            edges[v].push_back(u);
+        ptr = min(ptr, m - 1);
+        while (ptr > i && rev[ptr] < colors[i]) {
+            ptr--;
         }
-        function<void(int)> dfs = [&](int node) {
-            static int timer = 0;
-            low[node] = disc[node] = timer++;
-            for (int neighbor : edges[node]) {
-                if (disc[neighbor] == INT_MAX) {
-                    parent[neighbor] = node;
-                    dfs(neighbor);
-                    low[node] = min(low[node], low[neighbor]);
-                    if (low[neighbor] > disc[node]) {
-                        bridges++;
-                    }
-                } else if (neighbor != parent[node]){
-                    low[node] = min(low[node], low[neighbor]);
-                }
-            }
-        };
-        dfs(0);
-        for (int time : disc) {
-            if (time == INT_MAX) {
-                bridges = 1;
-                break;
-            }
+        if (rev[ptr] >= colors[i]) {
+            ptr++;
         }
-        cout << (bridges ? "YES" : "NO") << '\n';
+        ptr = max(i + 1, ptr);
+        res += 2 * (colors[i] * (m - ptr) - suff[ptr]);
     }
+    cout << res;
 }
 
 void precompile() {

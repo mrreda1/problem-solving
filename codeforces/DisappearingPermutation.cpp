@@ -25,56 +25,69 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;         // Multiple test cases?
+const bool T = 1;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-    int p, c, u, v;
-    for (cin >> p >> c; p | c; cin >> p >> c) {
-        if (!c) {
-            cout << (p > 1 ? "YES" : "NO") << '\n';
+    int n = nxt<int>(), res = 0;
+    vector<vector<int>> edges(n);
+    vector<int> location(n, -1), scc;
+    for (int i = 0; i < n; i++) {
+        int x = nxt<int>() - 1;
+        edges[x].push_back(i);
+        edges[i].push_back(x);
+    }
+    for (int i = 0; i < n; i++) {
+        if (location[i] != -1) {
             continue;
         }
-        int bridges = 0;
-        vector<int> parent(p, -1), low(p, INT_MAX), disc(p, INT_MAX);
-        vector<vector<int>> edges(p);
-        for (int i = 0; i < c; i++) {
-            cin >> u >> v;
-            edges[u].push_back(v);
-            edges[v].push_back(u);
-        }
-        function<void(int)> dfs = [&](int node) {
-            static int timer = 0;
-            low[node] = disc[node] = timer++;
-            for (int neighbor : edges[node]) {
-                if (disc[neighbor] == INT_MAX) {
-                    parent[neighbor] = node;
-                    dfs(neighbor);
-                    low[node] = min(low[node], low[neighbor]);
-                    if (low[neighbor] > disc[node]) {
-                        bridges++;
-                    }
-                } else if (neighbor != parent[node]){
-                    low[node] = min(low[node], low[neighbor]);
+        location[i] = scc.size();
+        scc.push_back(1);
+        stack<int> pending({i});
+        while (!pending.empty()) {
+            int current = pending.top();
+            pending.pop();
+            for (int neighbor : edges[current]) {
+                if (location[neighbor] != -1) {
+                    continue;
                 }
-            }
-        };
-        dfs(0);
-        for (int time : disc) {
-            if (time == INT_MAX) {
-                bridges = 1;
-                break;
+                pending.push(neighbor);
+                location[neighbor] = location[current];
+                scc.back()++;
             }
         }
-        cout << (bridges ? "YES" : "NO") << '\n';
+    }
+    vector<bool> visited_component(scc.size(), false);
+    for (int i = 0; i < n; i++) {
+        int x = nxt<int>() - 1;
+        if (!visited_component[location[x]]) {
+            res += scc[location[x]];
+            visited_component[location[x]] = true;
+        }
+        cout << res << ' ';
     }
 }
 
-void precompile() {
+void precompute() {
 }
 
+void IOSetter();
+void TCGetter();
+
 int main() { // Don't touch it, compile with "_DEBUG" flag
-    precompile();
+    precompute();
+    IOSetter();
+    TCGetter();
+}
+
+void TCGetter() {
+    int t = T ? nxt<int>() : 1;
+    do {
+        solve();
+    } while (--t && cout << '\n');
+};
+
+void IOSetter() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG
@@ -86,11 +99,8 @@ int main() { // Don't touch it, compile with "_DEBUG" flag
         freopen((iofile + ".out").c_str(), "w", stdout);
     }
 #endif
-    int t = T ? nxt<int>() : 1;
-    do {
-        solve();
-    } while (--t && cout << '\n');
-}
+};
+
 template <typename T> T nxt() {
     T x;
     cin >> x;

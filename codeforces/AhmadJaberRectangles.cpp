@@ -23,58 +23,43 @@ template <typename Itr> void nxtseq(Itr begin, Itr end);
 
 using ld = long double;
 using llu = uint64_t;
-using ll = int64_t;
+using ll = long long;
 
 const bool T = 0;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
+ll intersect(array<array<ll, 4>, 2> r) {
+    ll x = max(0ll, min(r[0][2], r[1][2]) - max(r[0][0], r[1][0]));
+    ll y = max(0ll, min(r[0][3], r[1][3]) - max(r[0][1], r[1][1]));
+    return x * y;
+}
 void solve() {
-    int p, c, u, v;
-    for (cin >> p >> c; p | c; cin >> p >> c) {
-        if (!c) {
-            cout << (p > 1 ? "YES" : "NO") << '\n';
-            continue;
-        }
-        int bridges = 0;
-        vector<int> parent(p, -1), low(p, INT_MAX), disc(p, INT_MAX);
-        vector<vector<int>> edges(p);
-        for (int i = 0; i < c; i++) {
-            cin >> u >> v;
-            edges[u].push_back(v);
-            edges[v].push_back(u);
-        }
-        function<void(int)> dfs = [&](int node) {
-            static int timer = 0;
-            low[node] = disc[node] = timer++;
-            for (int neighbor : edges[node]) {
-                if (disc[neighbor] == INT_MAX) {
-                    parent[neighbor] = node;
-                    dfs(neighbor);
-                    low[node] = min(low[node], low[neighbor]);
-                    if (low[neighbor] > disc[node]) {
-                        bridges++;
-                    }
-                } else if (neighbor != parent[node]){
-                    low[node] = min(low[node], low[neighbor]);
-                }
-            }
-        };
-        dfs(0);
-        for (int time : disc) {
-            if (time == INT_MAX) {
-                bridges = 1;
-                break;
-            }
-        }
-        cout << (bridges ? "YES" : "NO") << '\n';
-    }
+    array<array<ll, 4>, 2> rect{{}};
+    cin >> rect[0][0] >> rect[0][2] >> rect[1][0] >> rect[1][2];
+    rect[0][3] = rect[1][3] = nxt<ll>();
+    cout << intersect(rect);
 }
 
-void precompile() {
+void precompute() {
 }
+
+void IOSetter();
+void TCGetter();
 
 int main() { // Don't touch it, compile with "_DEBUG" flag
-    precompile();
+    precompute();
+    IOSetter();
+    TCGetter();
+}
+
+void TCGetter() {
+    int t = T ? nxt<int>() : 1;
+    do {
+        solve();
+    } while (--t && cout << '\n');
+};
+
+void IOSetter() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG
@@ -86,11 +71,8 @@ int main() { // Don't touch it, compile with "_DEBUG" flag
         freopen((iofile + ".out").c_str(), "w", stdout);
     }
 #endif
-    int t = T ? nxt<int>() : 1;
-    do {
-        solve();
-    } while (--t && cout << '\n');
-}
+};
+
 template <typename T> T nxt() {
     T x;
     cin >> x;

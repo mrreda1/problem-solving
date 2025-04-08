@@ -53,7 +53,7 @@ void solve() {
         return res;
     };
     if (k <= n) {
-        res = a[(ll) k];
+        res = a[k];
     } else {
         ll m = k / 2;
         res = search(m);

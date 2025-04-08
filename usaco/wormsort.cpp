@@ -11,53 +11,87 @@ template <typename T> class is_iterable {
     template <typename U>
     static auto test(U *u) -> decltype(u->begin(), u->end(), true_type{});
     template <typename> static false_type test(...);
-    static constexpr bool value = decltype(test<T>(nullptr))::value;
+    static constexpr bool value =
+        !is_same<T, string>::value && decltype(test<T>(nullptr))::value;
 };
 template <typename T>
-typename enable_if<!is_iterable<T>::value>::type nxtseq(T &x);
-template <typename T>
 typename enable_if<is_iterable<T>::value>::type nxtseq(T &x);
+template <typename T>
+typename enable_if<!is_iterable<T>::value>::type nxtseq(T &x);
+template <typename T1, typename T2> void nxtseq(pair<T1, T2> &p);
+template <typename Itr> void nxtseq(Itr begin, Itr end);
 
 using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;
-const string iofile = "wormsort";
+const bool T = 0;                 // Multiple test cases?
+const string iofile = "wormsort"; // I/O file?
 
 void solve() {
-    ll n = nxt<int>(), m = nxt<int>(), res = LLONG_MAX, mx = 0;
-    vector<int> cows(n + 1);
-    vector<map<int, ll>> worms(n + 1);
-    generate(1 + all(cows), nxt<int>);
-
-    while (m--) {
-        ll a = nxt<int>(), b = nxt<int>(), w = nxt<int>();
-        worms[a][b] = max(worms[a][b], w);
-        worms[b][a] = max(worms[b][a], w);
+    int n = nxt<int>(), m = nxt<int>(), l = 1, r = 1e9, ans = l;
+    vector<int> cows(n);
+    vector<array<int, 3>> wormholes(m);
+    nxtseq(cows), nxtseq(wormholes);
+    if (is_sorted(all(cows))) {
+        cout << -1;
+        return;
     }
-    for (int i = 1; i <= n; i++) {
-        if (cows[i] != i) {
-            mx = 0;
-            vector<bool>visited(n + 1, 0);
-            function<void(int, ll)> search = [&](int x, ll mn) {
-                for (auto [c, w] : worms[x]) {
-                    if (c == i) {
-                        mx = max(mx, min(mn, w));
-                    } else if (!visited[c]) {
-                        visited[c] = true;
-                        search(c, min(mn, w));
+    while (l <= r) {
+        int mid = (l + r) / 2;
+        vector<vector<int>> edges(n);
+        for (array<int, 3> &wormhole : wormholes) {
+            if (wormhole[2] >= mid) {
+                edges[wormhole[0] - 1].push_back(wormhole[1] - 1);
+                edges[wormhole[1] - 1].push_back(wormhole[0] - 1);
+            }
+        }
+        vector<int> sortedcows(all(cows));
+        vector<bool> visited(n, false);
+        vector<vector<int>> forest;
+        for (int st = 0; st < n; st++) {
+            if (visited[st]) continue;
+            visited[st] = true;
+            queue<int> pending({st});
+            forest.push_back({st});
+            while (!pending.empty()) {
+                int current = pending.front();
+                pending.pop();
+                for (int neighbor : edges[current]) {
+                    if (!visited[neighbor]) {
+                        visited[neighbor] = true;
+                        pending.push(neighbor);
+                        forest.back().push_back(neighbor);
                     }
                 }
-            };
-            search(cows[i], LLONG_MAX);
-            res = min(res, mx);
+            }
+        }
+        for (vector<int> scc : forest) {
+            int n = scc.size();
+            vector<int> pos(n);
+            for (int i = 0; i < n; i++) {
+                pos[i] = cows[scc[i]];
+            }
+            sort(all(scc)), sort(all(pos));
+            for (int i = 0; i < n; i++) {
+                sortedcows[scc[i]] = pos[i];
+            }
+        }
+        if (is_sorted(all(sortedcows))) {
+            l = mid + 1;
+            ans = mid;
+        } else {
+            r = mid - 1;
         }
     }
-    cout << (res == LLONG_MAX ? -1 : res);
+    cout << ans;
 }
 
-int main() {
+void precompile() {
+}
+
+int main() { // Don't touch it, compile with "_DEBUG" flag
+    precompile();
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG
@@ -88,4 +122,13 @@ typename enable_if<is_iterable<T>::value>::type nxtseq(T &x) {
     for (auto &v : x) {
         nxtseq(v);
     }
+}
+template <typename Itr> void nxtseq(Itr begin, Itr end) {
+    for (Itr itr = begin; itr < end; ++itr) {
+        nxtseq(*itr);
+    }
+}
+template <typename T1, typename T2> void nxtseq(pair<T1, T2> &p) {
+    nxtseq(p.first);
+    nxtseq(p.second);
 }

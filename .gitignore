@@ -1,6 +1,8 @@
 templates/programming-library/
 templates/utils.cpp
+google/
 general/
 **result
 **a.out
 **test.cpp
+.gitignore

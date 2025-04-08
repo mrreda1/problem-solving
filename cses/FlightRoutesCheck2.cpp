@@ -25,49 +25,40 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;         // Multiple test cases?
+const bool T = 0;     // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-    int p, c, u, v;
-    for (cin >> p >> c; p | c; cin >> p >> c) {
-        if (!c) {
-            cout << (p > 1 ? "YES" : "NO") << '\n';
-            continue;
-        }
-        int bridges = 0;
-        vector<int> parent(p, -1), low(p, INT_MAX), disc(p, INT_MAX);
-        vector<vector<int>> edges(p);
-        for (int i = 0; i < c; i++) {
-            cin >> u >> v;
-            edges[u].push_back(v);
-            edges[v].push_back(u);
-        }
-        function<void(int)> dfs = [&](int node) {
-            static int timer = 0;
-            low[node] = disc[node] = timer++;
-            for (int neighbor : edges[node]) {
-                if (disc[neighbor] == INT_MAX) {
-                    parent[neighbor] = node;
-                    dfs(neighbor);
-                    low[node] = min(low[node], low[neighbor]);
-                    if (low[neighbor] > disc[node]) {
-                        bridges++;
-                    }
-                } else if (neighbor != parent[node]){
-                    low[node] = min(low[node], low[neighbor]);
+    int n = nxt<int>(), m = nxt<int>();
+    vector<vector<vector<int>>> edges(2, vector<vector<int>>(n));
+    while (m--) {
+        int u = nxt<int>() - 1, v = nxt<int>() - 1;
+        edges[0][u].push_back(v);
+        edges[1][v].push_back(u);
+    }
+    for (int dir = 0; dir < 2; dir++) {
+        stack<int> pending({0});
+        vector<bool> visited(n, false);
+        visited[0] = true;
+        while (!pending.empty()) {
+            int current = pending.top();
+            pending.pop();
+            for (int neighbor : edges[dir][current]) {
+                if (!visited[neighbor]) {
+                    visited[neighbor] = true;
+                    pending.push(neighbor);
                 }
             }
-        };
-        dfs(0);
-        for (int time : disc) {
-            if (time == INT_MAX) {
-                bridges = 1;
-                break;
+        }
+        for (int u = 0, v = 1; v < n; v++) {
+            if (!visited[v]) {
+                if (dir) swap(u, v);
+                cout << "NO\n" << u + 1 << ' ' << v + 1;
+                return;
             }
         }
-        cout << (bridges ? "YES" : "NO") << '\n';
     }
+    cout << "YES";
 }
 
 void precompile() {

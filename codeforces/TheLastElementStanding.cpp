@@ -25,56 +25,70 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;         // Multiple test cases?
+const bool T = 1;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
-void solve() {
-    int p, c, u, v;
-    for (cin >> p >> c; p | c; cin >> p >> c) {
-        if (!c) {
-            cout << (p > 1 ? "YES" : "NO") << '\n';
-            continue;
-        }
-        int bridges = 0;
-        vector<int> parent(p, -1), low(p, INT_MAX), disc(p, INT_MAX);
-        vector<vector<int>> edges(p);
-        for (int i = 0; i < c; i++) {
-            cin >> u >> v;
-            edges[u].push_back(v);
-            edges[v].push_back(u);
-        }
-        function<void(int)> dfs = [&](int node) {
-            static int timer = 0;
-            low[node] = disc[node] = timer++;
-            for (int neighbor : edges[node]) {
-                if (disc[neighbor] == INT_MAX) {
-                    parent[neighbor] = node;
-                    dfs(neighbor);
-                    low[node] = min(low[node], low[neighbor]);
-                    if (low[neighbor] > disc[node]) {
-                        bridges++;
-                    }
-                } else if (neighbor != parent[node]){
-                    low[node] = min(low[node], low[neighbor]);
-                }
-            }
-        };
-        dfs(0);
-        for (int time : disc) {
-            if (time == INT_MAX) {
-                bridges = 1;
-                break;
-            }
-        }
-        cout << (bridges ? "YES" : "NO") << '\n';
+const int MOD = 1e9 + 7;
+const int MAXN = 1e5;
+
+vector<ll> combinations(int n) {
+    vector<ll> C(n + 1);
+
+    vector<ll> fact(n + 1, 1), inv_fact(n + 1, 1);
+    for (int i = 1; i <= n; ++i) {
+        fact[i] = fact[i - 1] * i % MOD;
     }
+
+    ll power = MOD - 2, base = fact[n];
+    while (power > 0) {
+        if (power % 2 == 1) {
+            inv_fact[n] = inv_fact[n] * base % MOD;
+        }
+        base = base * base % MOD;
+        power /= 2;
+    }
+    for (int i = n - 1; i >= 0; i--) {
+        inv_fact[i] = inv_fact[i + 1] * (i + 1) % MOD;
+    }
+    for (int i = 0; i <= n; i++) {
+        ll res = fact[n] * inv_fact[i] % MOD;
+        res = res * inv_fact[n - i] % MOD;
+        C[i] = res;
+    }
+
+    return C;
 }
 
-void precompile() {
+void solve() {
+    ll n = nxt<int>(), res = 0;
+    vector<ll> C = combinations(n - 1);
+    for (int i = 0; i < n; i++) {
+        ll x = nxt<int>();
+        res = (res + x * C[i] * (i & 1 ? -1 : 1)) % MOD;
+    }
+    cout << (res * (n & 1 ? 1 : -1) + MOD) % MOD;
 }
+
+void precompute() {
+}
+
+void IOSetter();
+void TCGetter();
 
 int main() { // Don't touch it, compile with "_DEBUG" flag
-    precompile();
+    precompute();
+    IOSetter();
+    TCGetter();
+}
+
+void TCGetter() {
+    int t = T ? nxt<int>() : 1;
+    do {
+        solve();
+    } while (--t && cout << '\n');
+};
+
+void IOSetter() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG
@@ -86,11 +100,8 @@ int main() { // Don't touch it, compile with "_DEBUG" flag
         freopen((iofile + ".out").c_str(), "w", stdout);
     }
 #endif
-    int t = T ? nxt<int>() : 1;
-    do {
-        solve();
-    } while (--t && cout << '\n');
-}
+};
+
 template <typename T> T nxt() {
     T x;
     cin >> x;

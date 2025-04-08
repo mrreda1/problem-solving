@@ -28,46 +28,58 @@ using ll = int64_t;
 const bool T = 0;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
-void solve() {
-    int p, c, u, v;
-    for (cin >> p >> c; p | c; cin >> p >> c) {
-        if (!c) {
-            cout << (p > 1 ? "YES" : "NO") << '\n';
-            continue;
-        }
-        int bridges = 0;
-        vector<int> parent(p, -1), low(p, INT_MAX), disc(p, INT_MAX);
-        vector<vector<int>> edges(p);
-        for (int i = 0; i < c; i++) {
-            cin >> u >> v;
-            edges[u].push_back(v);
-            edges[v].push_back(u);
-        }
-        function<void(int)> dfs = [&](int node) {
-            static int timer = 0;
-            low[node] = disc[node] = timer++;
-            for (int neighbor : edges[node]) {
-                if (disc[neighbor] == INT_MAX) {
-                    parent[neighbor] = node;
-                    dfs(neighbor);
-                    low[node] = min(low[node], low[neighbor]);
-                    if (low[neighbor] > disc[node]) {
-                        bridges++;
-                    }
-                } else if (neighbor != parent[node]){
-                    low[node] = min(low[node], low[neighbor]);
-                }
+void grid_parse(const vector<string> &grid, vector<vector<int>> &edges) {
+    int n = grid.size(), m = grid[0].size();
+    function<void(int, int)> link = [&edges](int u, int v) {
+        edges[v].push_back(u);
+        edges[u].push_back(v);
+    };
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (grid[i][j] == '#') {
+                continue;
             }
-        };
-        dfs(0);
-        for (int time : disc) {
-            if (time == INT_MAX) {
-                bridges = 1;
-                break;
+            bool up = i != 0 && grid[i - 1][j] == '.',
+                 down = i != (n - 1) && grid[i + 1][j] == '.',
+                 left = j != 0 && grid[i][j - 1] == '.',
+                 right = j != (m - 1) && grid[i][j + 1] == '.';
+            if (up) {
+                link(i * m + j, (i - 1) * m + j);
+            }
+            if (down) {
+                link(i * m + j, (i + 1) * m + j);
+            }
+            if (left) {
+                link(i * m + j, i * m + j - 1);
+            }
+            if (right) {
+                link(i * m + j, i * m + j + 1);
             }
         }
-        cout << (bridges ? "YES" : "NO") << '\n';
     }
+}
+void dfs(int node, vector<bool> &visited, const vector<vector<int>> &edges) {
+    for (int neighbor : edges[node]) {
+        if (!visited[neighbor]) {
+            visited[neighbor] = true;
+            dfs(neighbor, visited, edges);
+        }
+    }
+}
+void solve() {
+    int n = nxt<int>(), m = nxt<int>(), scc = 0;
+    vector<string> grid(n);
+    vector<vector<int>> edges(n * m);
+    vector<bool> visited(n * m, false);
+    nxtseq(grid);
+    grid_parse(grid, edges);
+    for (int i = 0; i < n * m; i++) {
+        if (!(grid[i / m][i % m] == '#' || visited[i])) {
+            visited[i] = true, scc++;
+            dfs(i, visited, edges);
+        }
+    }
+    cout << scc;
 }
 
 void precompile() {

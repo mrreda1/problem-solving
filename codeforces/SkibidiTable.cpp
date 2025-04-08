@@ -25,56 +25,81 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;         // Multiple test cases?
+const bool T = 1;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
+array<ll, 2> getQuarter(ll d, ll n) {
+    if (n == 0) {
+        return {1, 1};
+    }
+    ll qrtr = (1 << (2 * n)) / 4, sqqrt = sqrt(qrtr);
+    array<ll, 2> res, ret;
+    if (d > qrtr * 3) {
+        res = {sqqrt, 0};
+        ret = getQuarter(d - qrtr * 3, n - 1);
+    } else if (d > qrtr * 2) {
+        res = {0, sqqrt};
+        ret = getQuarter(d - qrtr * 2, n - 1);
+    } else if (d > qrtr) {
+        res = {sqqrt, sqqrt};
+        ret = getQuarter(d - qrtr, n - 1);
+    } else {
+        res = {0, 0};
+        ret = getQuarter(d, n - 1);
+    }
+    return {res[0] + ret[0], res[1] + ret[1]};
+}
+ll getValue(ll x, ll y, ll n) {
+    if (n == 0) {
+        return 1;
+    }
+    ll dd = (1 << (2 * n)), l = sqrt(dd);
+    if (x > l / 2 && y > l / 2) {
+        return dd / 4 + getValue(x - l / 2, y - l / 2, n - 1);
+    } else if (x > l / 2) {
+        return dd / 2 + getValue(x - l / 2, y, n - 1);
+    } else if (y > l / 2) {
+        return 3 * dd / 4 + getValue(x, y - l / 2, n - 1);
+    }
+    return getValue(x, y, n - 1);
+}
 void solve() {
-    int p, c, u, v;
-    for (cin >> p >> c; p | c; cin >> p >> c) {
-        if (!c) {
-            cout << (p > 1 ? "YES" : "NO") << '\n';
-            continue;
+    ll n, q, d, x, y;
+    char c;
+    cin >> n >> q;
+    while (q--) {
+        cin >> c >> c;
+        if (c == '-') {
+            cin >> d;
+            array<ll, 2> point = getQuarter(d, n);
+            cout << point[1] << ' ' << point[0] << '\n';
+        } else {
+            cin >> x >> y;
+            cout << getValue(x, y, n) << '\n';
         }
-        int bridges = 0;
-        vector<int> parent(p, -1), low(p, INT_MAX), disc(p, INT_MAX);
-        vector<vector<int>> edges(p);
-        for (int i = 0; i < c; i++) {
-            cin >> u >> v;
-            edges[u].push_back(v);
-            edges[v].push_back(u);
-        }
-        function<void(int)> dfs = [&](int node) {
-            static int timer = 0;
-            low[node] = disc[node] = timer++;
-            for (int neighbor : edges[node]) {
-                if (disc[neighbor] == INT_MAX) {
-                    parent[neighbor] = node;
-                    dfs(neighbor);
-                    low[node] = min(low[node], low[neighbor]);
-                    if (low[neighbor] > disc[node]) {
-                        bridges++;
-                    }
-                } else if (neighbor != parent[node]){
-                    low[node] = min(low[node], low[neighbor]);
-                }
-            }
-        };
-        dfs(0);
-        for (int time : disc) {
-            if (time == INT_MAX) {
-                bridges = 1;
-                break;
-            }
-        }
-        cout << (bridges ? "YES" : "NO") << '\n';
     }
 }
 
-void precompile() {
+void precompute() {
 }
 
+void IOSetter();
+void TCGetter();
+
 int main() { // Don't touch it, compile with "_DEBUG" flag
-    precompile();
+    precompute();
+    IOSetter();
+    TCGetter();
+}
+
+void TCGetter() {
+    int t = T ? nxt<int>() : 1;
+    do {
+        solve();
+    } while (--t && cout << '\n');
+};
+
+void IOSetter() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG
@@ -86,11 +111,8 @@ int main() { // Don't touch it, compile with "_DEBUG" flag
         freopen((iofile + ".out").c_str(), "w", stdout);
     }
 #endif
-    int t = T ? nxt<int>() : 1;
-    do {
-        solve();
-    } while (--t && cout << '\n');
-}
+};
+
 template <typename T> T nxt() {
     T x;
     cin >> x;

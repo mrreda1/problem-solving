@@ -3,6 +3,9 @@
 #define all(v) v.begin(), v.end()
 #define rall(v) v.rbegin(), v.rend()
 #define make_unique(x) sort(all(x)), x.erase(unique(all(x)), x.end())
+#define mul_mod(a, b, m) (((a % m) * (b % m)) % m)
+#define add_mod(a, b, m) (((a % m) + (b % m)) % m)
+#define sub_mod(a, b, m) (((a % m) - (b % m) + m) % m)
 
 using namespace std;
 template <typename T> T nxt();
@@ -25,49 +28,36 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = 0;         // Multiple test cases?
+const bool T = 1;         // Multiple test cases?
 const string iofile = ""; // I/O file?
+const int MOD = 1e9 + 7;
+
+ll fastPow(ll b, ll p) {
+    ll res = 1;
+    while (p > 0) {
+        if (p & 1)
+            res = mul_mod(res, b, MOD);
+        b = mul_mod(b, b, MOD);
+        p >>= 1;
+    }
+    return res;
+}
 
 void solve() {
-    int p, c, u, v;
-    for (cin >> p >> c; p | c; cin >> p >> c) {
-        if (!c) {
-            cout << (p > 1 ? "YES" : "NO") << '\n';
-            continue;
-        }
-        int bridges = 0;
-        vector<int> parent(p, -1), low(p, INT_MAX), disc(p, INT_MAX);
-        vector<vector<int>> edges(p);
-        for (int i = 0; i < c; i++) {
-            cin >> u >> v;
-            edges[u].push_back(v);
-            edges[v].push_back(u);
-        }
-        function<void(int)> dfs = [&](int node) {
-            static int timer = 0;
-            low[node] = disc[node] = timer++;
-            for (int neighbor : edges[node]) {
-                if (disc[neighbor] == INT_MAX) {
-                    parent[neighbor] = node;
-                    dfs(neighbor);
-                    low[node] = min(low[node], low[neighbor]);
-                    if (low[neighbor] > disc[node]) {
-                        bridges++;
-                    }
-                } else if (neighbor != parent[node]){
-                    low[node] = min(low[node], low[neighbor]);
-                }
-            }
-        };
-        dfs(0);
-        for (int time : disc) {
-            if (time == INT_MAX) {
-                bridges = 1;
-                break;
-            }
-        }
-        cout << (bridges ? "YES" : "NO") << '\n';
+    ll n, k, res = 0;
+    cin >> n >> k;
+    stack<bool> bits;
+    while (k) {
+        bits.push(k & 1);
+        k /= 2;
     }
+    while (!bits.empty()) {
+        if (bits.top()) {
+            res = add_mod(res, fastPow(n, bits.size() - 1), MOD);
+        }
+        bits.pop();
+    }
+    cout << res % MOD;
 }
 
 void precompile() {
