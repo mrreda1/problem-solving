@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <bits/stdc++.h>
 
 #define all(v) v.begin(), v.end()
@@ -23,22 +22,78 @@ template <typename T1, typename T2> void nxtseq(pair<T1, T2> &p);
 template <typename Itr> void nxtseq(Itr begin, Itr end);
 
 using ld = long double;
-using llu = uint64_t;
-using ll = int64_t;
+using llu = unsigned long long;
+using ll = long long;
 
-const bool T = false;     // Multiple test cases?
+const bool T = 0;         // Multiple test cases?
 const string iofile = ""; // I/O file?
+const int MOD = 1e9 + 7;
 
-void solve() {
-    int o = nxt<int>(), g = nxt<int>();
-    vector<int> ouda(o), gom3a(g), tmp(min(o, g) + 1, 0);
-    nxtseq(ouda), nxtseq(gom3a);
-    make_unique(ouda), make_unique(gom3a);
-    set_intersection(all(ouda), all(gom3a), tmp.begin());
-    cout << min(ouda.size(), gom3a.size()) - set<int>(all(tmp)).size() + 1;
+#define mul_mod(a, b) ((((a) % MOD) * ((b) % MOD)) % MOD)
+#define add_mod(a, b) ((((a) % MOD) + ((b) % MOD)) % MOD)
+#define sub_mod(a, b) ((((a) % MOD) - ((b) % MOD)) % MOD)
+
+ll pow_mod(ll b, ll p) {
+    ll res = 1;
+    b %= MOD;
+    while (p > 0) {
+        if (p & 1)
+            res = res * b % MOD;
+        b = b * b % MOD;
+        p >>= 1;
+    }
+    return res;
+}
+ll inv_mod(ll x) {
+    return pow_mod(x % MOD, MOD - 2);
+}
+ll div_mod(ll x, ll y) {
+    return mul_mod(x - (x % y), inv_mod(y));
 }
 
+void solve() {
+    ll n = nxt<ll>(), r = n;
+    int res = 0;
+    do {
+        ll hi = r, lo = 1, l = 1;
+        while (lo <= hi) {
+            ll mid = (lo + hi) / 2;
+            if (n / mid == n / r) {
+                l = mid;
+                hi = mid - 1;
+            } else {
+                lo = mid + 1;
+            }
+        }
+        res = add_mod(res, mul_mod(div_mod(n, r),
+                                   mul_mod(sub_mod(mul_mod(r, add_mod(r, 1)),
+                                                   mul_mod(l, sub_mod(l, 1))),
+                                           (MOD + 1) / 2)));
+        r = l - 1;
+    } while (r > 0);
+    cout << res;
+}
+
+void precompute() {
+}
+
+void IOSetter();
+void TCGetter();
+
 int main() { // Don't touch it, compile with "_DEBUG" flag
+    precompute();
+    IOSetter();
+    TCGetter();
+}
+
+void TCGetter() {
+    int t = T ? nxt<int>() : 1;
+    do {
+        solve();
+    } while (--t && cout << '\n');
+};
+
+void IOSetter() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG
@@ -50,11 +105,8 @@ int main() { // Don't touch it, compile with "_DEBUG" flag
         freopen((iofile + ".out").c_str(), "w", stdout);
     }
 #endif
-    int t = T ? nxt<int>() : 1;
-    do {
-        solve();
-    } while (--t && cout << '\n');
-}
+};
+
 template <typename T> T nxt() {
     T x;
     cin >> x;

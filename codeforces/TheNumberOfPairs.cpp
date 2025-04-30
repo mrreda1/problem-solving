@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <bits/stdc++.h>
 
 #define all(v) v.begin(), v.end()
@@ -26,19 +25,69 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = false;     // Multiple test cases?
+const bool T = 1;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
-void solve() {
-    int o = nxt<int>(), g = nxt<int>();
-    vector<int> ouda(o), gom3a(g), tmp(min(o, g) + 1, 0);
-    nxtseq(ouda), nxtseq(gom3a);
-    make_unique(ouda), make_unique(gom3a);
-    set_intersection(all(ouda), all(gom3a), tmp.begin());
-    cout << min(ouda.size(), gom3a.size()) - set<int>(all(tmp)).size() + 1;
+const int MAXN = 2e7 + 1;
+vector<int> spf(MAXN, 1);
+void sieve() {
+    spf[0] = 0;
+    for (int i = 2; i <= MAXN; i++) {
+        if (spf[i] == 1) {
+            for (int j = i; j <= MAXN; j += i) {
+                if (spf[j] == 1) {
+                    spf[j] = i;
+                }
+            }
+        }
+    }
 }
 
+int numOfDivs(int x) {
+    int lst = 0, divs = 0;
+    while (x != 1) {
+        divs += spf[x] != lst;
+        lst = spf[x], x /= spf[x];
+    }
+    return divs;
+}
+
+void solve() {
+    int c, d, x, res = 0;
+    cin >> c >> d >> x;
+    for (int t = 1; t * t <= x; t++) {
+        if (x % t) continue;
+        if ((d + x / t) % c == 0) {
+            res += 1ll << numOfDivs((d + x / t) / c);
+        }
+        if (t * t != x && ((d + t) % c) == 0) {
+            res += 1ll << numOfDivs((d + t) / c);
+        }
+    }
+    cout << res;
+}
+
+void precompute() {
+    sieve();
+}
+
+void IOSetter();
+void TCGetter();
+
 int main() { // Don't touch it, compile with "_DEBUG" flag
+    precompute();
+    IOSetter();
+    TCGetter();
+}
+
+void TCGetter() {
+    int t = T ? nxt<int>() : 1;
+    do {
+        solve();
+    } while (--t && cout << '\n');
+};
+
+void IOSetter() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG
@@ -50,11 +99,8 @@ int main() { // Don't touch it, compile with "_DEBUG" flag
         freopen((iofile + ".out").c_str(), "w", stdout);
     }
 #endif
-    int t = T ? nxt<int>() : 1;
-    do {
-        solve();
-    } while (--t && cout << '\n');
-}
+};
+
 template <typename T> T nxt() {
     T x;
     cin >> x;

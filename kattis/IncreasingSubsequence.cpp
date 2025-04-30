@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <bits/stdc++.h>
 
 #define all(v) v.begin(), v.end()
@@ -23,22 +22,65 @@ template <typename T1, typename T2> void nxtseq(pair<T1, T2> &p);
 template <typename Itr> void nxtseq(Itr begin, Itr end);
 
 using ld = long double;
-using llu = uint64_t;
-using ll = int64_t;
+using ll = long long;
+using llu = unsigned long long;
 
-const bool T = false;     // Multiple test cases?
+const bool T = 0;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-    int o = nxt<int>(), g = nxt<int>();
-    vector<int> ouda(o), gom3a(g), tmp(min(o, g) + 1, 0);
-    nxtseq(ouda), nxtseq(gom3a);
-    make_unique(ouda), make_unique(gom3a);
-    set_intersection(all(ouda), all(gom3a), tmp.begin());
-    cout << min(ouda.size(), gom3a.size()) - set<int>(all(tmp)).size() + 1;
+    int n;
+    while ((n = nxt<int>())) {
+        vector<int> a(n);
+        nxtseq(a);
+        vector<deque<array<int, 2>>> lis;
+        stack<array<int, 2>> res;
+        for (int i = 0; i < n; i++) {
+            int pos = lower_bound(all(lis), a[i],
+                                  [](deque<array<int, 2>> &x, int k) {
+                                      return x.back()[0] < k;
+                                  }) - lis.begin();
+            if (pos == lis.size()) {
+                lis.push_back({{a[i], i}});
+            } else {
+                lis[pos].push_back({a[i], i});
+            }
+        }
+        cout << '\n' << lis.size() << ' ';
+        res.push(lis.back().back());
+        for (int i = lis.size() - 2; i >= 0; i--) {
+            while (lis[i].back()[0] >= res.top()[0] || lis[i].back()[1] >= res.top()[1]) {
+                lis[i].pop_back();
+            }
+            res.push(lis[i].back());
+        }
+        while (!res.empty()) {
+            cout << res.top()[0] << ' ';
+            res.pop();
+        }
+    }
 }
 
+void precompute() {
+}
+
+void IOSetter();
+void TCGetter();
+
 int main() { // Don't touch it, compile with "_DEBUG" flag
+    precompute();
+    IOSetter();
+    TCGetter();
+}
+
+void TCGetter() {
+    int t = T ? nxt<int>() : 1;
+    do {
+        solve();
+    } while (--t && cout << '\n');
+};
+
+void IOSetter() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG
@@ -50,11 +92,8 @@ int main() { // Don't touch it, compile with "_DEBUG" flag
         freopen((iofile + ".out").c_str(), "w", stdout);
     }
 #endif
-    int t = T ? nxt<int>() : 1;
-    do {
-        solve();
-    } while (--t && cout << '\n');
-}
+};
+
 template <typename T> T nxt() {
     T x;
     cin >> x;

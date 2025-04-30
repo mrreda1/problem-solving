@@ -1,52 +1,79 @@
-#include <algorithm>
-#include <iostream>
-#include <climits>
+#include <bits/stdc++.h>
+
+#define all(v) v.begin(), v.end()
+#define rall(v) v.rbegin(), v.rend()
+#define make_unique(x) sort(all(x)), x.erase(unique(all(x)), x.end())
 
 using namespace std;
+template <typename T> T nxt();
+template <typename T> class is_iterable {
+  public:
+    template <typename U>
+    static auto test(U *u) -> decltype(u->begin(), u->end(), true_type{});
+    template <typename> static false_type test(...);
+    static constexpr bool value =
+        !is_same<T, string>::value && decltype(test<T>(nullptr))::value;
+};
+template <typename T>
+typename enable_if<is_iterable<T>::value>::type nxtseq(T &x);
+template <typename T>
+typename enable_if<!is_iterable<T>::value>::type nxtseq(T &x);
+template <typename T1, typename T2> void nxtseq(pair<T1, T2> &p);
+template <typename Itr> void nxtseq(Itr begin, Itr end);
 
-int getLast(long arr[], size_t low, size_t high, long x, size_t n) {
-    if (low >= high) return high;
-    size_t mid = (high + low) / 2;
-    if ((mid == n - 1 || x < arr[mid + 1]) && arr[mid] == x)
-        return mid;
-    else if (x < arr[mid]) {
-        if (mid <= 0) return 0;
-        return getLast(arr, low, mid - 1, x, n);
+using ld = long double;
+using llu = uint64_t;
+using ll = int64_t;
+
+const bool T = false;     // Multiple test cases?
+const string iofile = ""; // I/O file?
+
+void solve() {
+    vector<int> shops(nxt<int>() + 1, 0);
+    nxtseq(1 + all(shops)), sort(all(shops));
+    for (int q = nxt<int>(); q--;) {
+        cout << upper_bound(all(shops), nxt<int>()) - shops.begin() - 1 << '\n';
     }
-    return getLast(arr, mid + 1, high, x, n);
 }
-int getFirst(long arr[], size_t low, size_t high, long x, size_t n) {
-    if (low >= high) return high;
-    size_t mid = (high + low) / 2;
-    if ((mid == 0 || x > arr[mid - 1]) && arr[mid] == x)
-        return mid;
-    else if (x > arr[mid])
-        return getFirst(arr, mid + 1, high, x, n);
-    else if (mid <= 0) return 0;
-    return getFirst(arr, low, mid - 1, x, n);
-}
-int main () {
-    int s, d, i, day, cnt;
-    cin >> s;
 
-    long shop[s+1] = {0};
-    for (i = 1; i <= s; i++)
-        cin >> shop[i];
-    sort(shop, shop + s + 1);
-
-    cin >> d;
-    for (i = 0; i < d; i++) {
-        cin >> day;
-        if (day >= shop[s]) {
-            cout << s << '\n';
-            continue;
-        }
-        cnt = getLast(shop, 0, s, day, s+1);
-        if (shop[cnt] > day) {
-            cnt = getFirst(shop, 0, s, shop[cnt], s+1) - 1;
-        } else if (shop[cnt] < day) {
-            cnt = getLast(shop, 0, s, shop[cnt], s+1);
-        }
-        cout << cnt << '\n';
+int main() { // Don't touch it, compile with "_DEBUG" flag
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+#ifdef _DEBUG
+    freopen("../templates/default.in", "r", stdin);
+    freopen("../templates/default.out", "w", stdout);
+#else
+    if (iofile != "") {
+        freopen((iofile + ".in").c_str(), "r", stdin);
+        freopen((iofile + ".out").c_str(), "w", stdout);
     }
+#endif
+    int t = T ? nxt<int>() : 1;
+    do {
+        solve();
+    } while (--t && cout << '\n');
+}
+template <typename T> T nxt() {
+    T x;
+    cin >> x;
+    return x;
+}
+template <typename T>
+typename enable_if<!is_iterable<T>::value>::type nxtseq(T &x) {
+    cin >> x;
+}
+template <typename T>
+typename enable_if<is_iterable<T>::value>::type nxtseq(T &x) {
+    for (auto &v : x) {
+        nxtseq(v);
+    }
+}
+template <typename Itr> void nxtseq(Itr begin, Itr end) {
+    for (Itr itr = begin; itr < end; ++itr) {
+        nxtseq(*itr);
+    }
+}
+template <typename T1, typename T2> void nxtseq(pair<T1, T2> &p) {
+    nxtseq(p.first);
+    nxtseq(p.second);
 }

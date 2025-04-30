@@ -2,62 +2,82 @@
 
 #define all(v) v.begin(), v.end()
 #define rall(v) v.rbegin(), v.rend()
-#define max(x, y) ((x > y) ? (x) : (y))
-#define min(x, y) ((x < y) ? (x) : (y))
-#define abs(x) (((x) < 0) ? (-(x)) : ((x)))
-#define mul_mod(a, b, m) (((a % m) * (b % m)) % m)
-#define add_mod(a, b, m) (((a % m) + (b % m)) % m)
-#define sub_mod(a, b, m) (((a % m) - (b % m) + m) % m)
+#define make_unique(x) sort(all(x)), x.erase(unique(all(x)), x.end())
 
 using namespace std;
-using llu = unsigned long long;
-using ll = long long;
-const ll MOD = 1e9 + 7;
+template <typename T> T nxt();
+template <typename T> class is_iterable {
+  public:
+    template <typename U>
+    static auto test(U *u) -> decltype(u->begin(), u->end(), true_type{});
+    template <typename> static false_type test(...);
+    static constexpr bool value =
+        !is_same<T, string>::value && decltype(test<T>(nullptr))::value;
+};
+template <typename T>
+typename enable_if<is_iterable<T>::value>::type nxtseq(T &x);
+template <typename T>
+typename enable_if<!is_iterable<T>::value>::type nxtseq(T &x);
+template <typename T1, typename T2> void nxtseq(pair<T1, T2> &p);
+template <typename Itr> void nxtseq(Itr begin, Itr end);
 
+using ld = long double;
+using llu = uint64_t;
+using ll = int64_t;
 
-const bool T = 0;
-const string filename = "";
+const bool T = false;     // Multiple test cases?
+const string iofile = ""; // I/O file?
 
 void solve() {
-    int n, m, freq[int(1e6 + 2)]{1}, a, q, s{}, i;
-    cin >> n;
-
-    while (n--) {
-        cin >> a;
-        s += a;
-        freq[s + 1] = 1;
+    int n = nxt<int>();
+    vector<int> a(n + 1, 0);
+    for (int i = 1; i <= n; i++) {
+        a[i] = a[i - 1] + nxt<int>();
     }
-    for (i = 1; i < 1e6 + 2; i++) {
-        freq[i] += freq[i - 1];
-    }
-
-    cin >> m;
+    int m = nxt<int>();
     while (m--) {
-        cin >> q;
-        cout << freq[q] << endl;
+        cout << lower_bound(all(a), nxt<int>()) - a.begin() << '\n';
     }
 }
 
-int main() {
+int main() { // Don't touch it, compile with "_DEBUG" flag
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG
     freopen("../templates/default.in", "r", stdin);
     freopen("../templates/default.out", "w", stdout);
 #else
-    if (filename != "") {
-        freopen((filename + ".in").c_str(), "r", stdin);
-        freopen((filename + ".out").c_str(), "w", stdout);
+    if (iofile != "") {
+        freopen((iofile + ".in").c_str(), "r", stdin);
+        freopen((iofile + ".out").c_str(), "w", stdout);
     }
 #endif
-    if (T) {
-        int t;
-        cin >> t;
-        while (t--) {
-            solve();
-            cout << '\n';
-        }
-    } else {
+    int t = T ? nxt<int>() : 1;
+    do {
         solve();
+    } while (--t && cout << '\n');
+}
+template <typename T> T nxt() {
+    T x;
+    cin >> x;
+    return x;
+}
+template <typename T>
+typename enable_if<!is_iterable<T>::value>::type nxtseq(T &x) {
+    cin >> x;
+}
+template <typename T>
+typename enable_if<is_iterable<T>::value>::type nxtseq(T &x) {
+    for (auto &v : x) {
+        nxtseq(v);
     }
+}
+template <typename Itr> void nxtseq(Itr begin, Itr end) {
+    for (Itr itr = begin; itr < end; ++itr) {
+        nxtseq(*itr);
+    }
+}
+template <typename T1, typename T2> void nxtseq(pair<T1, T2> &p) {
+    nxtseq(p.first);
+    nxtseq(p.second);
 }

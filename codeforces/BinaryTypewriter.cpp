@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <bits/stdc++.h>
 
 #define all(v) v.begin(), v.end()
@@ -23,22 +22,62 @@ template <typename T1, typename T2> void nxtseq(pair<T1, T2> &p);
 template <typename Itr> void nxtseq(Itr begin, Itr end);
 
 using ld = long double;
-using llu = uint64_t;
-using ll = int64_t;
+using ll = long long;
+using llu = unsigned long long;
 
-const bool T = false;     // Multiple test cases?
+const bool T = 1;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
+ll transitions(string str) {
+    ll cnt = 0;
+    for (int i = 1; i < str.size(); i++) {
+        cnt += (str[i] != str[i - 1]);
+    }
+    return cnt;
+}
 void solve() {
-    int o = nxt<int>(), g = nxt<int>();
-    vector<int> ouda(o), gom3a(g), tmp(min(o, g) + 1, 0);
-    nxtseq(ouda), nxtseq(gom3a);
-    make_unique(ouda), make_unique(gom3a);
-    set_intersection(all(ouda), all(gom3a), tmp.begin());
-    cout << min(ouda.size(), gom3a.size()) - set<int>(all(tmp)).size() + 1;
+    ll n;
+    string str;
+    cin >> n >> str;
+    if (str[0] == '1') {
+        int trans = transitions(str);
+        if (trans <= 2) {
+            cout << n + 1;
+        } else {
+            cout << n + trans - 1;
+        }
+    } else {
+        int trans = transitions(str);
+        if (trans == 0) {
+            cout << n;
+        } else if (trans <= 2) {
+            cout << n + 1;
+        } else {
+            cout << n + trans - 2;
+        }
+    }
 }
 
+void precompute() {
+}
+
+void IOSetter();
+void TCGetter();
+
 int main() { // Don't touch it, compile with "_DEBUG" flag
+    precompute();
+    IOSetter();
+    TCGetter();
+}
+
+void TCGetter() {
+    int t = T ? nxt<int>() : 1;
+    do {
+        solve();
+    } while (--t && cout << '\n');
+};
+
+void IOSetter() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG
@@ -50,11 +89,8 @@ int main() { // Don't touch it, compile with "_DEBUG" flag
         freopen((iofile + ".out").c_str(), "w", stdout);
     }
 #endif
-    int t = T ? nxt<int>() : 1;
-    do {
-        solve();
-    } while (--t && cout << '\n');
-}
+};
+
 template <typename T> T nxt() {
     T x;
     cin >> x;

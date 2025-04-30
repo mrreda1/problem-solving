@@ -25,10 +25,99 @@ using ld = long double;
 using ll = long long;
 using llu = unsigned long long;
 
-const bool T = 0;         // Multiple test cases?
+const bool T = 1;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
+bool isValid1(vector<ll> &a, ll k) {
+    int n = a.size();
+    ll cnt = 0, i = 0;
+    for (; i < n; i++) {
+        cnt += a[i] <= k;
+        if (cnt >= (i + 2) / 2) {
+            break;
+        }
+    }
+    int j = i + 1;
+    for (cnt = 0; j < n - 1; j++) {
+        cnt += a[j] <= k;
+        if (cnt >= (j - i + 1) / 2) {
+            return true;
+        }
+    }
+    return false;
+}
+bool isValid2(vector<ll> &a, ll k) {
+    int n = a.size();
+    ll cnt = 0, i = 0;
+    for (; i < n; i++) {
+        cnt += a[i] <= k;
+        if (cnt >= (i + 2) / 2) {
+            break;
+        }
+    }
+    int j = n - 1;
+    for (cnt = 0; j > i + 1; j--) {
+        cnt += a[j] <= k;
+        if (cnt >= (n - j + 1) / 2) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool isValid3(vector<ll> &a, ll k) {
+    int n = a.size();
+    ll cnt = 0, i = 0;
+    for (; i < n; i++) {
+        cnt += a[i] <= k;
+        if (cnt >= (i + 2) / 2) {
+            break;
+        }
+    }
+    i += !(i & 1);
+    int j = i + 1;
+    for (cnt = 0; j < n - 1; j++) {
+        cnt += a[j] <= k;
+        if (cnt >= (j - i + 1) / 2) {
+            return true;
+        }
+    }
+    return false;
+}
+bool isValid4(vector<ll> &a, ll k) {
+    int n = a.size();
+    ll cnt = 0, i = 0;
+    for (; i < n; i++) {
+        cnt += a[i] <= k;
+        if (cnt >= (i + 2) / 2) {
+            break;
+        }
+    }
+    i += !(i & 1);
+    int j = n - 1;
+    for (cnt = 0; j > i + 1; j--) {
+        cnt += a[j] <= k;
+        if (cnt >= (n - j + 1) / 2) {
+            return true;
+        }
+    }
+    return false;
+}
 void solve() {
+    ll n, k;
+    cin >> n >> k;
+    vector<ll> a(n);
+    nxtseq(a);
+    if (isValid1(a, k) || isValid2(a, k) || isValid3(a, k) || isValid4(a, k)) {
+        cout << "YES";
+        return;
+    }
+    reverse(all(a));
+    if (isValid1(a, k) || isValid2(a, k) || isValid3(a, k) || isValid4(a, k)) {
+        cout << "YES";
+        return;
+    }
+    cout << "NO";
 }
 
 void precompute() {

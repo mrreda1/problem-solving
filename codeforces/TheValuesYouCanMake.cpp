@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <bits/stdc++.h>
 
 #define all(v) v.begin(), v.end()
@@ -26,19 +25,61 @@ using ld = long double;
 using llu = uint64_t;
 using ll = int64_t;
 
-const bool T = false;     // Multiple test cases?
+const bool T = 0;         // Multiple test cases?
 const string iofile = ""; // I/O file?
 
 void solve() {
-    int o = nxt<int>(), g = nxt<int>();
-    vector<int> ouda(o), gom3a(g), tmp(min(o, g) + 1, 0);
-    nxtseq(ouda), nxtseq(gom3a);
-    make_unique(ouda), make_unique(gom3a);
-    set_intersection(all(ouda), all(gom3a), tmp.begin());
-    cout << min(ouda.size(), gom3a.size()) - set<int>(all(tmp)).size() + 1;
+    short n, lim;
+    cin >> n >> lim;
+    short a[n + 1];
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i];
+    }
+    vector<vector<vector<bool>>> dp(
+        n + 1, vector<vector<bool>>(lim + 1, vector<bool>(lim + 1, false)));
+    dp[0][0][0] = true;
+    for (short i = 1; i <= n; i++) {
+        for (short j = 0; j <= lim; j++) {
+            for (short k = 0; k <= lim; k++) {
+                dp[i][j][k] = dp[i - 1][j][k];
+                short c = a[i];
+                if (c <= j) {
+                    if (c <= k) {
+                        dp[i][j][k] = dp[i][j][k] | dp[i - 1][j - c][k - c];
+                    }
+                    dp[i][j][k] = dp[i][j][k] | dp[i - 1][j - c][k];
+                }
+            }
+        }
+    }
+    cout << accumulate(all(dp[n][lim]), 0) << '\n';
+    for (short i = 0; i <= lim; i++) {
+        if (dp[n][lim][i]) {
+            cout << i << ' ';
+        }
+    }
 }
 
+void precompute() {
+}
+
+void IOSetter();
+void TCGetter();
+
 int main() { // Don't touch it, compile with "_DEBUG" flag
+    precompute();
+    IOSetter();
+    TCGetter();
+}
+
+void TCGetter() {
+    int t = T ? nxt<int>() : 1;
+    do {
+        solve();
+    } while (--t && cout << '\n');
+};
+
+void IOSetter() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 #ifdef _DEBUG
@@ -50,11 +91,8 @@ int main() { // Don't touch it, compile with "_DEBUG" flag
         freopen((iofile + ".out").c_str(), "w", stdout);
     }
 #endif
-    int t = T ? nxt<int>() : 1;
-    do {
-        solve();
-    } while (--t && cout << '\n');
-}
+};
+
 template <typename T> T nxt() {
     T x;
     cin >> x;

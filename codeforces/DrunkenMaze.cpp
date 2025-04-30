@@ -31,9 +31,6 @@ const string iofile = ""; // I/O file?
 
 void grid_parse(const vector<vector<char>> &grid, vector<vector<int>> &edges) {
     int n = grid.size(), m = grid[0].size();
-    function<void(int, int)> link = [&edges](int u, int v) {
-        edges[u].push_back(v);
-    };
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
             if (grid[i][j] == '#') {
@@ -44,19 +41,29 @@ void grid_parse(const vector<vector<char>> &grid, vector<vector<int>> &edges) {
                  left = j != 0 && grid[i][j - 1] != '#',
                  right = j != (m - 1) && grid[i][j + 1] != '#';
             if (up) {
-                link(i * m + j, (i - 1) * m + j);
+                edges[i * m + j].push_back((i - 1) * m + j);
             }
             if (down) {
-                link(i * m + j, (i + 1) * m + j);
+                edges[i * m + j].push_back((i + 1) * m + j);
             }
             if (left) {
-                link(i * m + j, i * m + j - 1);
+                edges[i * m + j].push_back(i * m + j - 1);
             }
             if (right) {
-                link(i * m + j, i * m + j + 1);
+                edges[i * m + j].push_back(i * m + j + 1);
             }
         }
     }
+}
+int getDir(int src, int dist, int col) {
+    if (dist - src == 1) {
+        return 0;
+    } else if (src - dist == 1) {
+        return 1;
+    } else if (dist - src == col) {
+        return 2;
+    }
+    return 3;
 }
 void solve() {
     int n, m, st, ed;
@@ -74,31 +81,15 @@ void solve() {
         }
     }
     grid_parse(grid, edges);
-    vector<array<array<ll, 4>, 4>> dp(n * m);
-    for (int i = 0; i < n * m; i++) {
-        for (int j = 0; j < 4; j++) {
-            for (int k = 0; k < 4; k++) {
-                dp[i][j][k] = INT_MAX;
-            }
-        }
-    }
+    vector<vector<vector<ll>>> dp(
+        n * m, vector<vector<ll>>(4, vector<ll>(4, INT_MAX)));
     for (int i = 0; i < 4; i++) {
         dp[st][i] = {};
     }
-    function<int(int, int)> getDir = [&m](int src, int dist) {
-        if (dist - src == 1) {
-            return 0;
-        } else if (src - dist == 1) {
-            return 1;
-        } else if (dist - src == m) {
-            return 2;
-        }
-        return 3;
-    };
     using state = tuple<ll, int, int, int>;
     priority_queue<state, vector<state>, greater<state>> pending;
     for (int neighbor : edges[st]) {
-        int dir = getDir(st, neighbor);
+        int dir = getDir(st, neighbor, m);
         pending.push({1, neighbor, dir, 1});
     }
     while (!pending.empty()) {
@@ -109,7 +100,7 @@ void solve() {
         }
         dp[current][old_dir][rep] = cost;
         for (int neighbor : edges[current]) {
-            int dir = getDir(current, neighbor);
+            int dir = getDir(current, neighbor, m);
             if (dir == old_dir) {
                 if (rep == 3) {
                     pending.push({cost + 3, neighbor, dir, 2});

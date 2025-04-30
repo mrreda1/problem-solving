@@ -2,7 +2,10 @@ templates/programming-library/
 templates/utils.cpp
 google/
 general/
+contest/
+vjudge/
 **result
 **a.out
+**\:w
 **test.cpp
 .gitignore
